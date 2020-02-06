@@ -26,6 +26,7 @@ str(Boston)
 quants <-Boston %>% select_if(is.numeric)
 quals <- Boston %>% select_if(is.factor)
 
+# Function to summarize key stats:
 get_stats <- function(quants){
   
   stats_table <- as.data.frame.matrix(summary(quants))
