@@ -11,33 +11,49 @@ library(MASS)
 data(Boston)
 
 
-# Explore data
+# EXPLORE DATA #
+################
 
-# Step 1: check obj structure, change int to factors
+# 1: check obj structure, change int to factors
 
 Boston <- Boston %>%
   mutate_if(is.integer, as.factor)
 str(Boston)
 
-# Step 2: get summary stats
+# 2: get summary stats
 
-# Use summary to display stats of quants: 
+# use summary to display stats of quants
 
 quants <-Boston %>% select_if(is.numeric)
 quals <- Boston %>% select_if(is.factor)
 
-# Function to summarize key stats:
+# function to summarize key stats
 get_stats <- function(quants){
   
-  stats_table <- as.data.frame.matrix(summary(quants))
+  stats.table <- as.data.frame.matrix(summary(quants))
   
-  # STILL TO DO: calculate sd, format it to fit, 
-  # then append sd to stats table
+  # ugly hack to calculate sd & append to the summary table
+  # get sd as vector
+  stats.sd <- data.frame("sd" = sapply(quants, sd))
+  # reformat
+  formatted.stats.sd <- stats.sd %>%
+    # preserve var names
+    as.data.table(keep.rownames = T) %>%
+    # transpose to wide
+    t %>% data.table(keep.rownames = T) %>%
+    # drop redundant first col
+    dplyr::select(-1)
+  # assign first row to table names
+  names(formatted.stats.sd) <- unlist(formatted.stats.sd[1,])
+  # get rid of redundant first row
+  final <- formatted.stats.sd[2,]
+    
+  # STILL TO DO: append sd to stats table
 
-  return(stats_table)
+  return(stats.table)
 }
 
-stats_summary <-  get_stats(quants) 
+stats.summary <-  get_stats(quants) 
 
 
 
