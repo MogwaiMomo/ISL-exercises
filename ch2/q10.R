@@ -27,18 +27,23 @@ str(Boston)
 quants <-Boston %>% select_if(is.numeric)
 quals <- Boston %>% select_if(is.factor)
 
+
 # function to summarize key stats
 get_stats <- function(quants){
   
+  # get min, max, mean, etc.
   stats.table <- as.data.frame.matrix(summary(quants))
-  
+  names(stats.table) <- trimws(names(stats.table))
   # ugly hack to calculate sd & append to the summary table
   # get sd as vector
-  stats.sd <- data.frame("sd" = sapply(quants, sd))
+  stats.sd <- data.frame("sd" = sapply(quants, sd)) %>%
+    round(digit = 4)
   # reformat
   formatted.stats.sd <- stats.sd %>%
     # preserve var names
     as.data.table(keep.rownames = T) %>%
+    # add formatting to match summary table
+    mutate(sd = paste("Sd : ", sd)) %>%
     # transpose to wide
     t %>% data.table(keep.rownames = T) %>%
     # drop redundant first col
@@ -49,6 +54,9 @@ get_stats <- function(quants){
   final <- formatted.stats.sd[2,]
     
   # STILL TO DO: append sd to stats table
+  
+  stats.table.tmp <- rbind(stats.table[1:4,], final)
+  stats.table <- rbind(stats.table.tmp, stats.table[5:6,])
 
   return(stats.table)
 }
