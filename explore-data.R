@@ -66,7 +66,7 @@ stats.summary <-  get_stats(quants)
 
 
 
-# 3. Graph & explore variables 
+# Graph & explore variables 
  
 
 ## plot all single-var & two-var quant graphs

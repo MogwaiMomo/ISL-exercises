@@ -39,3 +39,7 @@ Thumbs.db
 # Documents #
 #############
 *.pdf
+
+# RStudio #
+*.RData
+*.Rhistory
