@@ -83,38 +83,17 @@ stats.summary <-  get_stats(quants)
 ## Plot all factor-based graphs
 
 # set grid of plots 1rx3c
-png(filename="plot1.png", width = 1440, height = 1024)
 par(mfrow=c(1,3))
 attach(data)
 boxplot(mpg ~ cylinders, xlab = "cyl")
 boxplot(mpg ~ year, xlab = "year")
 boxplot(mpg ~ origin, xlab = "origin")
-dev.off()
 
 
 ## plot all single-var & two-var quant graphs
 
 library(PerformanceAnalytics)
-png(filename="plot2.png", width = 1600, height = 1600)
+png(filename="plot.png", width = 1480, height = 1480)
 plot2 <- chart.Correlation(quants,hist=T) 
 dev.off()
 
-
-# q8 simple linear regression, mpg ~ horsepower
-
-attach(dada)
-lm.fit1 <- lm(mpg ~ horsepower)
-# output coefficients
-lm.fit1
-# output full model details, including p-values
-summary(lm.fit1)
-# i. Yes there is a response between response and predictor
-# ii. the relationship is not so strong, but it is significant. but a lot of the change in mpg cannot be attributed to horsepower
-# iii. the relationship is positive
-# iv. conf. interval and prediction interval for horsepower = 98
-
-# confidence interval
-predict(lm.fit1, data.frame(horsepower = c(98)), interval = "confidence")
-
-# prediction interval
-predict(lm.fit1, data.frame(horsepower = c(98)), interval = "prediction")
