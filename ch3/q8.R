@@ -5,6 +5,7 @@ setwd(dirname(parent.frame(2)$ofile))
 # Load libraries
 require(tidyverse)
 require(data.table)
+require(ggplot2)
 
 # Load data
 file <- "Auto.csv"
@@ -102,7 +103,7 @@ dev.off()
 
 # q8 simple linear regression, mpg ~ horsepower
 
-attach(dada)
+attach(data)
 lm.fit1 <- lm(mpg ~ horsepower)
 # output coefficients
 lm.fit1
@@ -118,3 +119,23 @@ predict(lm.fit1, data.frame(horsepower = c(98)), interval = "confidence")
 
 # prediction interval
 predict(lm.fit1, data.frame(horsepower = c(98)), interval = "prediction")
+
+# b Plot response and predictor
+png(filename="plot3.png", width = 500, height = 300)
+ggplot(data = data, aes(y = mpg, x = horsepower )) + 
+  geom_point() + 
+  geom_smooth(method="lm", se=FALSE)
+dev.off()
+
+# c check diagostic plots for this least squares fit
+# create 2 x 2 grid, then plot 4 default diagnostic grids for an lm fit
+png(filename="plot4.png", width = 500*2, height = 300*2)
+par(mfrow=c(2,2))
+plot(lm.fit1)
+dev.off()
+
+# q9 scatterplot of all the data
+png(filename="plot6.png", width = 1600, height = 1600)
+#chart.Correlation(quants,hist=T)
+pairs(quants)
+dev.off()
