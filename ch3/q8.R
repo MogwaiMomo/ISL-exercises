@@ -134,8 +134,26 @@ par(mfrow=c(2,2))
 plot(lm.fit1)
 dev.off()
 
-# q9 scatterplot of all the data
+# To interpret: http://docs.statwing.com/interpreting-residual-plots-to-improve-your-regression/#hetero-header
+
+
+# q9 reformat data so that they're all numeric except 'name'
+
+data <- read.csv(file)
+str(data)
+
+data <- data %>%
+  mutate_if(is.integer, as.numeric) %>%
+  mutate(horsepower = as.numeric(horsepower))
+str(data)
+
+# a) scatterplot of all the data
+to_graph <- data %>% select(-name)
 png(filename="plot6.png", width = 1600, height = 1600)
-#chart.Correlation(quants,hist=T)
-pairs(quants)
+pairs(to_graph)
+dev.off()
+
+# b) calculate the cor
+png(filename="plot7.png", width = 1600, height = 1600)
+plot7 <- chart.Correlation(to_graph,hist=T) 
 dev.off()
