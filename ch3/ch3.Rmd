@@ -1,7 +1,17 @@
+---
+title: "ISL - Chapter 3 Exercises"
+author: "Momoko Price"
+date: "18/04/2020"
+output: 
+  html_document:
+    css: rmd_report.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
 # global options
 options(stringsAsFactors = F)
-setwd(dirname(parent.frame(2)$ofile))
-
 # Load libraries
 require(tidyverse)
 require(data.table)
@@ -10,12 +20,14 @@ require(ISLR)
 require(MASS)
 require(gridExtra)
 require(PerformanceAnalytics)
+```
+
+8. This question involves the use of simple linear regression on the Auto data set.
+
+```{r q8_load_data, include=FALSE}
 # Load data
 file <- "Auto.csv"
 data <- read.csv(file)
-
-# EXPLORE DATA #
-################
 
 # 1: check obj structure, change int to factors
 
@@ -37,7 +49,13 @@ data$name <- as.character(data$name)
 
 # check again
 str(data)
-  
+
+```
+
+* (a) Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output. 
+
+
+```{r q8_explore, echo=FALSE}
 # 2: Get summary stats
 
 # use summary to display stats of quants
@@ -72,7 +90,7 @@ get_stats <- function(quants){
   # get rid of redundant first row
   final <- formatted.stats.sd[2,]
   
-  # STILL TO DO: append sd to stats table
+  # append sd to stats table
   
   stats.table.tmp <- rbind(stats.table[1:4,], final)
   stats.table <- rbind(stats.table.tmp, stats.table[5:6,])
@@ -97,8 +115,6 @@ dev.off()
 
 
 ## plot all single-var & two-var quant graphs
-
-
 png(filename="plot2.png", width = 1600, height = 1600)
 plot2 <- chart.Correlation(quants,hist=T) 
 dev.off()
@@ -161,6 +177,21 @@ dev.off()
 # 3. Predictor appears to be normally distributed (QQ plot)
 # 4. Appears to have equal variance across data
 # 5. No high leverage outliers
+```
+
+For example:
+
+  * i. Is there a relationship between the predictor and the response?
+  * ii. How strong is the relationship between the predictor and the response?
+  * iii. Is the relationship between the predictor and the response positive or negative?
+  * iv. What is the predicted mpg associated with a horsepower of 98? What are the associated 95 % confidence and prediction intervals?
+
+* (b) Plot the response and the predictor. Use the abline() function to display the least squares regression line.
+
+* (c) Use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit
+
+
+
 
 
 # q9 reformat data so that they're all numeric except 'name'
