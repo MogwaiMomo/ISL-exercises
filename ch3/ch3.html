@@ -265,6 +265,7 @@ color: #333;
 p {margin-bottom: 1.15rem;
 }
 ul {
+margin: 1rem 0 1rem;
 list-style-type: none;
 }
 h1, h2, h3, h4, h5 {
@@ -345,36 +346,15 @@ $(document).ready(function () {
 <ol start="8" style="list-style-type: decimal">
 <li>This question involves the use of simple linear regression on the Auto data set.</li>
 </ol>
-<ul>
-<li><ol style="list-style-type: lower-alpha">
+<ol style="list-style-type: lower-alpha">
 <li>Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output.</li>
-</ol></li>
+</ol>
+<ul>
+<li><em>First, is there a relationship between the predictor and the response?</em></li>
 </ul>
-<pre><code>## The following object is masked from package:ggplot2:
-## 
-##     mpg</code></pre>
-<pre><code>## quartz_off_screen 
-##                 2</code></pre>
-<pre><code>## quartz_off_screen 
-##                 2</code></pre>
-<pre><code>## The following objects are masked from data (pos = 3):
-## 
-##     acceleration, cylinders, displacement, horsepower, mpg, name,
-##     origin, weight, year
-## 
-## The following object is masked from package:ggplot2:
-## 
-##     mpg</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = mpg ~ horsepower)
-## 
-## Coefficients:
-## (Intercept)   horsepower  
-##     17.8076       0.1108</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = mpg ~ horsepower)
+## lm(formula = mpg ~ horsepower, data = data)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -390,20 +370,7 @@ $(document).ready(function () {
 ## Residual standard error: 7.101 on 395 degrees of freedom
 ## Multiple R-squared:  0.1788, Adjusted R-squared:  0.1767 
 ## F-statistic: 85.99 on 1 and 395 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre><code>##        fit      lwr      upr
-## 1 28.66647 27.36905 29.96389</code></pre>
-<pre><code>##        fit     lwr      upr
-## 1 28.66647 14.6462 42.68674</code></pre>
-<pre><code>## `geom_smooth()` using formula 'y ~ x'</code></pre>
-<pre><code>## quartz_off_screen 
-##                 2</code></pre>
-<pre><code>## quartz_off_screen 
-##                 2</code></pre>
-<p>For example:</p>
 <ul>
-<li><ol style="list-style-type: lower-roman">
-<li>Is there a relationship between the predictor and the response?</li>
-</ol></li>
 <li><ol start="2" style="list-style-type: lower-roman">
 <li>How strong is the relationship between the predictor and the response?</li>
 </ol></li>
@@ -420,316 +387,6 @@ $(document).ready(function () {
 <li>Use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit</li>
 </ol></li>
 </ul>
-<div id="q9-reformat-data-so-that-theyre-all-numeric-except-name" class="section level1">
-<h1>q9 reformat data so that they’re all numeric except ‘name’</h1>
-<p>data &lt;- read.csv(file) str(data)</p>
-<p>data &lt;- data %&gt;% mutate_if(is.integer, as.numeric) %&gt;% mutate(horsepower = as.numeric(horsepower)) %&gt;% mutate(origin = as.factor(origin)) str(data)</p>
-</div>
-<div id="a-scatterplot-of-all-the-data" class="section level1">
-<h1>a) scatterplot of all the data</h1>
-<p>to_graph &lt;- data %&gt;% dplyr::select(-name, -origin) png(filename=“plot6.png”, width = 1600, height = 1600) pairs(to_graph) dev.off()</p>
-</div>
-<div id="b-calculate-the-correlation-between-variables" class="section level1">
-<h1>b) calculate the correlation between variables</h1>
-<p>png(filename=“plot7.png”, width = 1600, height = 1600) plot7 &lt;- chart.Correlation(to_graph,hist=T) dev.off()</p>
-</div>
-<div id="c-use-the-lm-function-to-perform-a-multiple-linear-regression-with-mpg-as-the-response-and-all-other-variables-except-name-as-the-predictors." class="section level1">
-<h1>c) Use the lm() function to perform a multiple linear regression with mpg as the response and all other variables except name as the predictors.</h1>
-<p>mlr.fit &lt;- lm(mpg ~.-name -origin, data = data) # origin is categorical, not numeric. summary(mlr.fit)</p>
-</div>
-<div id="i.-is-there-a-relationship-between-the-predictors-and-the-response-yes." class="section level1">
-<h1>i. Is there a relationship between the predictors and the response? Yes.</h1>
-</div>
-<div id="ii.-which-predictors-appear-to-have-a-statistically-significant-relationship-to-the-response-mpg-goes-down-as-displacement-weight-go-up.-mpg-goes-up-with-year-and-displacement." class="section level1">
-<h1>ii. Which predictors appear to have a statistically significant relationship to the response? MPG goes down as displacement &amp; weight go up. MPG goes up with year, and displacement.</h1>
-</div>
-<div id="iii.-what-does-the-coefficient-for-the-year-variable-suggest-mileage-gets-better-with-newer-cars." class="section level1">
-<h1>iii. What does the coefficient for the year variable suggest? Mileage gets better with newer cars.</h1>
-</div>
-<div id="d-use-the-plot-function-to-produce-diagnostic-plots-of-the-linear-regression-fit.-comment-on-any-problems-you-see-with-the-fit." class="section level1">
-<h1>(d) Use the plot() function to produce diagnostic plots of the linear regression fit. Comment on any problems you see with the fit.</h1>
-<p>png(filename=“plot8.png”, width = 1600, height = 1600) par(mfrow=c(2,2)) plot(mlr.fit) dev.off()</p>
-</div>
-<div id="issues" class="section level1">
-<h1>Issues:</h1>
-<p># non-linear relationship # some heteroscedasticity # skewed right, fat tails on right</p>
-</div>
-<div id="e-use-the-and-symbols-to-fit-linear-regression-models-with-interaction-effects.-do-any-interactions-appear-to-be-statistically-significant" class="section level1">
-<h1>e) Use the * and : symbols to fit linear regression models with interaction effects. Do any interactions appear to be statistically significant?</h1>
-<p>mlr.fit.xy &lt;- lm(mpg ~ . + I(weight^2) + weight:year -name -origin, data = data) summary(mlr.fit.xy) png(filename=“plot9.png”, width = 1600, height = 1600) par(mfrow=c(2,2)) plot(mlr.fit.xy) dev.off()</p>
-<p>anova(mlr.fit, mlr.fit.xy) # Yes, squaring the weight and including an interaction effect between weight and year are both statisticlaly significant. Residuals look much better.</p>
-</div>
-<div id="this-question-should-be-answered-using-the-carseats-data-set." class="section level1">
-<h1>10. This question should be answered using the Carseats data set.</h1>
-<p>data(Carseats) Carseats str(Carseats)</p>
-</div>
-<div id="fit-a-multiple-regression-model-to-predict-sales-using-price-urban-and-us." class="section level1">
-<h1>Fit a multiple regression model to predict Sales using Price, Urban, and US.</h1>
-<p>lm.sales.1 &lt;- lm(Sales ~ Price + Urban + US, data=Carseats) summary(lm.sales.1) # Interpretation: # 1. The mean sales is 13 units # 2. Sales go down by 0.054 units as price goes up per unit. # 3. Sales &amp; location don’t seem to have any kind of relationship. # 4. Sales are on average 1.2 units higher in the US than out.</p>
-</div>
-<div id="c-y-13.04---0.054x1-1.2x2" class="section level1">
-<h1>c) y = 13.04 - 0.054x1 + 1.2x2</h1>
-</div>
-<div id="non-us-x2-0-us-x2-1" class="section level1">
-<h1>(Non-US: x2 = 0, US: x2 = 1)</h1>
-</div>
-<div id="d-price-and-us-based" class="section level1">
-<h1>d) price and US-based</h1>
-</div>
-<div id="e-y-13.04---0.054x1-1.2x2" class="section level1">
-<h1>e) y = 13.04 - 0.054x1 + 1.2x2</h1>
-</div>
-<div id="non-us-x2-0-us-x2-1-1" class="section level1">
-<h1>(Non-US: x2 = 0, US: x2 = 1)</h1>
-</div>
-<div id="f-how-well-do-the-models-in-a-and-e-fit-the-data" class="section level1">
-<h1>(f) How well do the models in (a) and (e) fit the data?</h1>
-<p>lm.sales.2 &lt;- lm(Sales ~ Price + US, data=Carseats) summary(lm.sales.2)</p>
-</div>
-<div id="confidence-interval" class="section level1">
-<h1>confidence interval</h1>
-<p>predict(lm.sales.2, data.frame(Price = c(100), US = “No”), interval = “confidence”)</p>
-</div>
-<div id="prediction-interval" class="section level1">
-<h1>prediction interval</h1>
-<p>predict(lm.sales.2, data.frame(Price = c(100), US = “No”), interval = “prediction”)</p>
-</div>
-<div id="g-using-the-model-from-e-obtain-95-confidence-intervals-for-the-coefficients." class="section level1">
-<h1>(g) Using the model from (e), obtain 95% confidence intervals for the coefficient(s).</h1>
-<p>confint(lm.sales.2)</p>
-</div>
-<div id="h-is-there-evidence-of-outliers-or-high-leverage-observations-in-the-model-from-e-no." class="section level1">
-<h1>(h) Is there evidence of outliers or high leverage observations in the model from (e)? No.</h1>
-</div>
-<div id="in-this-problem-we-will-investigate-the-t-statistic-for-the-null-hypoth--esis-h0--0-in-simple-linear-regression-without-an-intercept.-to-begin-we-generate-a-predictor-x-and-a-response-y-as-follows." class="section level1">
-<h1>11. In this problem we will investigate the t-statistic for the null hypoth- esis H0 : β = 0 in simple linear regression without an intercept. To begin, we generate a predictor x and a response y as follows.</h1>
-<p>set.seed(1) x &lt;- rnorm(100) y &lt;- 2*x + rnorm(100)</p>
-</div>
-<div id="a-perform-a-simple-linear-regression-of-y-onto-x-without-an-intercept." class="section level1">
-<h1>(a) Perform a simple linear regression of y onto x, without an intercept.</h1>
-<p>data &lt;- data.frame( x = x, y = y )</p>
-<p>lm.fit2 &lt;- lm(y~x+0, data = data) summary(lm.fit2)</p>
-</div>
-<div id="b-1.9939" class="section level1">
-<h1>b = 1.9939</h1>
-</div>
-<div id="se-0.1065" class="section level1">
-<h1>se = 0.1065</h1>
-</div>
-<div id="t-18.73" class="section level1">
-<h1>t = 18.73</h1>
-</div>
-<div id="p-val-2e-16" class="section level1">
-<h1>p-val = &lt;2e-16</h1>
-<p>lm.fit3 &lt;- lm(x~y+0, data = data) summary(lm.fit3)</p>
-</div>
-<div id="b-0.39111" class="section level1">
-<h1>b = 0.39111</h1>
-</div>
-<div id="se-0.02089" class="section level1">
-<h1>se = 0.02089</h1>
-</div>
-<div id="t-18.73-1" class="section level1">
-<h1>t = 18.73</h1>
-</div>
-<div id="p-val-2e-16-1" class="section level1">
-<h1>p-val = &lt;2e-16</h1>
-</div>
-<div id="e-using-the-results-from-d-argue-that-the-t-statistic-for-the-regression-of-y-onto-x-is-the-same-as-the-t-statistic-for-the-regression-of-x-onto-y." class="section level1">
-<h1>(e) Using the results from (d), argue that the t-statistic for the regression of y onto x is the same as the t-statistic for the regression of x onto y.</h1>
-</div>
-<div id="this-problem-involves-simple-linear-regression-without-an-intercept." class="section level1">
-<h1>12. This problem involves simple linear regression without an intercept.</h1>
-</div>
-<div id="a-recall-that-the-coefficient-estimate--for-the-linear-regression-of-y-onto-x-without-an-intercept-is-given-by-3.38.-under-what-circumstance-is-the-coefficient-estimate-for-the-regression-of-x-onto-y-the-same-as-the-coefficient-estimate-for-the-regression-of-y-onto-x" class="section level1">
-<h1>(a) Recall that the coefficient estimate βˆ for the linear regression of Y onto X without an intercept is given by (3.38). Under what circumstance is the coefficient estimate for the regression of X onto Y the same as the coefficient estimate for the regression of Y onto X?</h1>
-</div>
-<div id="ans-when-x-y." class="section level1">
-<h1>Ans: When x = y.</h1>
-</div>
-<div id="b-generate-an-example-in-r-with-n-100-observations-in-which-the-coefficient-estimate-for-the-regression-of-x-onto-y-is-different-from-the-coefficient-estimate-for-the-regression-of-y-onto-x." class="section level1">
-<h1>(b) Generate an example in R with n = 100 observations in which the coefficient estimate for the regression of X onto Y is different from the coefficient estimate for the regression of Y onto X.</h1>
-<p>x &lt;- rnorm(1000, mean = 5, sd = 2.5) y &lt;- 2*x + rnorm(1000, mean = 5, sd = 2.5)</p>
-<p>data1 &lt;- data.frame( x = x, y = y )</p>
-<p>lm.fit.12a &lt;- lm(y ~ x, data=data1) summary(lm.fit.12a)</p>
-<p>lm.fit.12b &lt;- lm(x ~ y, data=data1) summary(lm.fit.12b)</p>
-</div>
-<div id="c-generate-an-example-in-r-with-n-100-observations-in-which-the-coefficient-estimate-for-the-regression-of-x-onto-y-is-the-same-as-the-coefficient-estimate-for-the-regression-of-y-onto-x." class="section level1">
-<h1>(c) Generate an example in R with n = 100 observations in which the coefficient estimate for the regression of X onto Y is the same as the coefficient estimate for the regression of Y onto X.</h1>
-<p>x &lt;- rnorm(100, mean = 0, sd = 2.5) y &lt;- rnorm(100, mean = 0, sd = 2.5)</p>
-<p>data1 &lt;- data.frame( x = x, y = y )</p>
-<p>lm.fit.12ca &lt;- lm(y ~ x, data=data1) summary(lm.fit.12ca)</p>
-<p>lm.fit.12cb &lt;- lm(x ~ y, data=data1) summary(lm.fit.12cb)</p>
-<p>coef(lm.fit.12ca) coef(lm.fit.12cb)</p>
-</div>
-<div id="in-this-exercise-you-will-create-some-simulated-data-and-will-fit-simple-linear-regression-models-to-it.-make-sure-to-use-set.seed1-prior-to-starting-part-a-to-ensure-consistent-results." class="section level1">
-<h1>13. In this exercise you will create some simulated data and will fit simple linear regression models to it. Make sure to use set.seed(1) prior to starting part (a) to ensure consistent results.</h1>
-</div>
-<div id="a-using-the-rnorm-function-create-a-vector-x-containing-100-observations-drawn-from-a-n-0-1-distribution.-this-represents-a-feature-x." class="section level1">
-<h1>(a) Using the rnorm() function, create a vector, x, containing 100 observations drawn from a N (0, 1) distribution. This represents a feature, X.</h1>
-<p>set.seed(1) x &lt;- rnorm(100, 0, 1)</p>
-<p>#(b) Using the rnorm() function, create a vector, eps, containing 100 observations drawn from a N(0,0.25) distribution i.e. a normal distribution with mean zero and variance 0.25.</p>
-<p>eps &lt;- rnorm(100, 0, 0.5)</p>
-</div>
-<div id="c-using-x-and-eps-generate-a-vector-y-according-to-the-model-y-10.5x.-3.39-what-is-the-length-of-the-vector-y-what-are-the-values-of-0-and-1-in-this-linear-model" class="section level1">
-<h1>(c) Using x and eps, generate a vector y according to the model Y =−1+0.5X+ε. (3.39) What is the length of the vector y? What are the values of β0 and β1 in this linear model?</h1>
-<p>y &lt;- -1 + 0.5*x + eps data &lt;- data.frame( x = x, y = y )</p>
-<p>lm.fit.13c &lt;- lm(y ~ x, data = data) summary(lm.fit.13c)</p>
-</div>
-<div id="length-of-y" class="section level1">
-<h1>length of y:</h1>
-<p>length(y)</p>
-</div>
-<div id="b0-and-b1-theoretically" class="section level1">
-<h1>B0 and B1, theoretically</h1>
-</div>
-<div id="b0--1" class="section level1">
-<h1>B0 = -1</h1>
-</div>
-<div id="b1-0.5" class="section level1">
-<h1>B1 = 0.5</h1>
-</div>
-<div id="plot-the-scatterplot" class="section level1">
-<h1>plot the scatterplot</h1>
-<p>plot(data)</p>
-</div>
-<div id="fit-a-least-squares-linear-model-to-predict-y-using-x.-comment-on-the-model-obtained.-how-do-0-and-1-compare-to-0-and-1" class="section level1">
-<h1>Fit a least squares linear model to predict y using x. Comment on the model obtained. How do βˆ0 and βˆ1 compare to β0 and β1?</h1>
-<p>lm.fit.13c &lt;- lm(y ~ x, data = data) summary(lm.fit.13c)</p>
-</div>
-<div id="answer---coefficients-are-on-point-very-close-to-the-theoretical-values." class="section level1">
-<h1>answer - coefficients are on point, very close to the theoretical values.</h1>
-<p>coef(lm.fit.13c)</p>
-</div>
-<div id="f-display-the-least-squares-line-on-the-scatterplot-obtained-in-d.-draw-the-population-regression-line-on-the-plot-in-a-different-color.-use-the-legend-command-to-create-an-appropriate-leg--end." class="section level1">
-<h1>(f) Display the least squares line on the scatterplot obtained in (d). Draw the population regression line on the plot, in a different color. Use the legend() command to create an appropriate leg- end.</h1>
-<p>png(filename=“plot13c.png”, width = 500, height = 300) ggplot(data = data, aes(y = y, x = x)) + geom_point() + geom_smooth(method=“lm”, se=TRUE) dev.off()</p>
-</div>
-<div id="g-now-fit-a-polynomial-regression-model-that-predicts-y-using-x-and-x2.-is-there-evidence-that-the-quadratic-term-improves-the-model-fit-explain-your-answer." class="section level1">
-<h1>(g) Now fit a polynomial regression model that predicts y using x and x2. Is there evidence that the quadratic term improves the model fit? Explain your answer.</h1>
-<p>lm.fit.13g &lt;- lm(y ~ x + I(x^2), data = data) summary(lm.fit.13g) anova(lm.fit.13c, lm.fit.13g)</p>
-</div>
-<div id="answer-no-p-value-of-0.16." class="section level1">
-<h1>Answer: no, p-value of 0.16.</h1>
-</div>
-<div id="h---j-see-how-increasing-and-reducing-the-noise-added-to-the-model-changes-the-confidence-intervals" class="section level1">
-<h1>(h - j) see how increasing and reducing the noise added to the model changes the confidence intervals</h1>
-<p>set.seed(1) x &lt;- rnorm(100, 0, 1)</p>
-<p>eps_more_noise &lt;- rnorm(100, 0, 1) eps_less_noise &lt;- rnorm(100, 0, 0.1)</p>
-<p>y_more &lt;- -1 + 0.5*x + eps_more_noise data_more &lt;- data.frame( x = x, y = y_more )</p>
-<p>y_less &lt;- -1 + 0.5*x + eps_less_noise data_less &lt;- data.frame( x = x, y = y_less )</p>
-<p>p1 &lt;- ggplot(data = data_less, aes(y = y, x = x)) + geom_point() + geom_smooth(method=“lm”, se=TRUE) p2 &lt;- ggplot(data = data, aes(y = y, x = x)) + geom_point() + geom_smooth(method=“lm”, se=TRUE) p3 &lt;- ggplot(data = data_more, aes(y = y, x = x)) + geom_point() + geom_smooth(method=“lm”, se=TRUE) ggsave(“plot13_more_v_less.png”, arrangeGrob(p1, p2, p3))</p>
-</div>
-<div id="compare-confidence-intervals" class="section level1">
-<h1>compare confidence intervals</h1>
-</div>
-<div id="regular-noise" class="section level1">
-<h1>regular noise</h1>
-<p>predict(lm(y ~ x, data = data), data.frame(x = c(2)), interval=“confidence”)</p>
-</div>
-<div id="less-noise" class="section level1">
-<h1>less noise</h1>
-<p>predict(lm(y ~ x, data = data_less), data.frame(x = c(2)), interval=“confidence”)</p>
-</div>
-<div id="more-noise" class="section level1">
-<h1>more noise</h1>
-<p>predict(lm(y ~ x, data = data_more), data.frame(x = c(2)), interval=“confidence”)</p>
-</div>
-<div id="this-problem-focuses-on-the-collinearity-problem" class="section level1">
-<h1>14. This problem focuses on the collinearity problem</h1>
-</div>
-<div id="a-coefficients" class="section level1">
-<h1>(a) coefficients?</h1>
-<p>set.seed(1) x1 &lt;- runif(100) x2 &lt;- 0.5<em>x1 + rnorm(100)/10 y &lt;- 2 + 2</em>x1 + 0.3*x2 + rnorm(100)</p>
-<p>data_14 &lt;- data.frame( x1 = x1, x2 = x2, y = y )</p>
-</div>
-<div id="b0-2-b1-2-b2-0.3" class="section level1">
-<h1>b0 = 2, b1 = 2, b2 = 0.3</h1>
-</div>
-<div id="b-correlation" class="section level1">
-<h1>(b) correlation?</h1>
-<p>cor(x1, x2) # Correlation is 0.835.</p>
-</div>
-<div id="create-scatterplot" class="section level1">
-<h1>Create scatterplot</h1>
-<p>p14_b &lt;- ggplot(data = data_14, aes(y = x2, x = x1)) + geom_point() ggsave(“plot14_b.png”, arrangeGrob(p14_b))</p>
-</div>
-<div id="c-using-this-data-fit-a-least-squares-regression-to-predict-y-using-x1-and-x2.-describe-the-results-obtained.-what-are-0-1-and-2-how-do-these-relate-to-the-true-0-1-and-2-can-you-reject-the-null-hypothesis-h0-1-0-how-about-the-null-hypothesis-h0-2-0" class="section level1">
-<h1>(c) Using this data, fit a least squares regression to predict y using x1 and x2. Describe the results obtained. What are βˆ0, βˆ1, and βˆ2? How do these relate to the true β0, β1, and β2? Can you reject the null hypothesis H0 : β1 = 0? How about the null hypothesis H0 : β2 = 0?</h1>
-<p>lm.fit14_c &lt;- lm(y ~ ., data = data_14) summary(lm.fit14_c)</p>
-</div>
-<div id="d-now-fit-a-least-squares-regression-to-predict-y-using-only-x1.-comment-on-your-results.-can-you-reject-the-null-hypothesis-h0-1-0" class="section level1">
-<h1>(d) Now fit a least squares regression to predict y using only x1. Comment on your results. Can you reject the null hypothesis H0 :β1 =0?</h1>
-<p>lm.fit14_d &lt;- lm(y ~ x1, data = data_14) summary(lm.fit14_d)</p>
-</div>
-<div id="e-now-fit-a-least-squares-regression-to-predict-y-using-only-x2.-comment-on-your-results.-can-you-reject-the-null-hypothesis-h0-1-0" class="section level1">
-<h1>(e) Now fit a least squares regression to predict y using only x2. Comment on your results. Can you reject the null hypothesis H0 :β1 =0?</h1>
-<p>lm.fit14_e &lt;- lm(y ~ x2, data = data_14) summary(lm.fit14_e)</p>
-</div>
-<div id="f-do-the-results-obtained-in-ce-contradict-each-other-explain-your-answer." class="section level1">
-<h1>(f) Do the results obtained in (c)–(e) contradict each other? Explain your answer.</h1>
-</div>
-<div id="collinearity-amplifies-the-standard-error-of-a-given-model-with-collinear-predictors-so-no." class="section level1">
-<h1>Collinearity amplifies the standard error of a given model with collinear predictors, so no.</h1>
-</div>
-<div id="g-re-fit-the-linear-models-from-c-to-e-using-this-new-data.-what-effect-does-this-new-observation-have-on-the-each-of-the-models-in-each-model-is-this-observation-an-outlier-a-high-leverage-point-both-explain-your-answers." class="section level1">
-<h1>(g) Re-fit the linear models from (c) to (e) using this new data. What effect does this new observation have on the each of the models? In each model, is this observation an outlier? A high-leverage point? Both? Explain your answers.</h1>
-<p>x1=c(x1, 0.1) x2=c(x2, 0.8) y=c(y,6)</p>
-<p>data_14g &lt;- data.frame( x1 = x1, x2 = x2, y = y )</p>
-<p>lm.fit14_g1 &lt;- lm(y ~ ., data = data_14) summary(lm.fit14_g1)</p>
-<p>lm.fit14_g2 &lt;- lm(y ~ x1, data = data_14) summary(lm.fit14_g2)</p>
-<p>lm.fit14_g3 &lt;- lm(y ~ x2, data = data_14) summary(lm.fit14_g3)</p>
-<p>png(filename=“plot14_g1.png”, width = 1600, height = 1600) par(mfrow=c(2,2)) plot(lm.fit14_g1) dev.off()</p>
-<p>png(filename=“plot14_g2.png”, width = 1600, height = 1600) par(mfrow=c(2,2)) plot(lm.fit14_g2) dev.off()</p>
-<p>png(filename=“plot14_g3.png”, width = 1600, height = 1600) par(mfrow=c(2,2)) plot(lm.fit14_g3) dev.off()</p>
-</div>
-<div id="the-observation-is-a-high-leverage-point-for-the-full-model-with-both-predictors-but-is-not-a-high-leverage-point-for-the-single-predictor-models." class="section level1">
-<h1>The observation is a high-leverage point for the full model with both predictors, but is not a high-leverage point for the single-predictor models.</h1>
-</div>
-<div id="this-problem-involves-the-boston-data-set-which-we-saw-in-the-lab-for-this-chapter." class="section level1">
-<h1>15. This problem involves the Boston data set, which we saw in the lab for this chapter.</h1>
-</div>
-<div id="a-for-each-predictor-fit-a-simple-linear-regression-model-to-predict-the-response.-describe-your-results.-in-which-of-the-models-is-there-a-statistically-significant-association-between-the-predictor-and-the-response-create-some-plots-to-back-up-your-assertions." class="section level1">
-<h1>(a) For each predictor, fit a simple linear regression model to predict the response. Describe your results. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions.</h1>
-<p>data(Boston) Boston</p>
-<p>str(Boston) # factor variables: chas.</p>
-</div>
-<div id="change-int-to-numeric" class="section level1">
-<h1>change int to numeric</h1>
-<p>Boston &lt;- Boston %&gt;% mutate_if(is.integer, as.numeric)</p>
-</div>
-<div id="change-varchas-to-factor" class="section level1">
-<h1>change var:chas to factor</h1>
-<p>Boston<span class="math inline">\(chas &lt;- as.factor(Boston\)</span>chas)</p>
-</div>
-<div id="scatterplot-of-quant-variables" class="section level1">
-<h1>scatterplot of quant variables</h1>
-<p>png(filename = “plot15.png”, width=1600, height=800) chart.Correlation(dplyr::select(Boston, -chas), histogram = TRUE) dev.off()</p>
-</div>
-<div id="create-a-sorted-list-of-strongest-correlationsrelationships" class="section level1">
-<h1>Create a sorted list of strongest correlations/relationships</h1>
-</div>
-<div id="step-1-make-a-list-of-vardata-vectors" class="section level1">
-<h1>step 1: make a list of var:data vectors</h1>
-<p>list.15 &lt;- as.list(dplyr::select(Boston, -chas))</p>
-</div>
-<div id="step-2-combine-vars-into-all-unique-pairs" class="section level1">
-<h1>step 2: combine vars into all unique pairs</h1>
-<p>corr.list &lt;- data.frame( var1 = NA, var2 = NA, corr = NA )</p>
-<p>for(i in 1:length(list.15)) { for(j in 1:length(list.15)) { if (i != j) { var1 &lt;- names(list.15[i]) var2 &lt;- names(list.15[j]) corr &lt;- cor( list.15[[i]], list.15[[j]] ) row &lt;- c(var1, var2, corr) corr.list &lt;- na.omit(rbind(corr.list, row)) %&gt;% arrange(desc(corr)) } } }</p>
-</div>
-<div id="figure-out-how-to-remove-duplicates" class="section level1">
-<h1>figure out how to remove duplicates</h1>
-</div>
-<div id="figure-out-how-to-sort-by-abs-value-of-corrs" class="section level1">
-<h1>figure out how to sort by abs value of corrs</h1>
-</div>
-<div id="identify-top-3-strongest-correlations" class="section level1">
-<h1>identify top 3 strongest correlations</h1>
-</div>
-<div id="identify-top-3-lowest-correlations" class="section level1">
-<h1>identify top 3 lowest correlations</h1>
-</div>
 
 
 
