@@ -4,7 +4,7 @@ author: "Momoko Price"
 date: "18/04/2020"
 output: 
   html_document:
-    css: rmd_report.css
+    css: ch3.css
 ---
 
 ```{r setup, include=FALSE}
@@ -22,11 +22,18 @@ require(gridExtra)
 require(PerformanceAnalytics)
 ```
 
-8. This question involves the use of simple linear regression on the Auto data set.
+##### Question 8 
+This question involves the use of simple linear regression on the Auto data set. First, use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output, including the following points: 
+
+*Is there a relationship between the predictor and the response?*<br> 
+*How strong is the relationship between the predictor and the response?*<br>
+*Is the relationship between the predictor and the response positive or negative?*<br>
+*What is the predicted mpg associated with a horsepower of 98? What are the associated 95 % confidence and prediction intervals?*<br>
+
 
 ```{r q8_pre_data, include=FALSE}
 # Load data
-file <- "Auto.csv"
+file <- "data/Auto.csv"
 data <- read.csv(file)
 
 # 1: check obj structure, change int to factors
@@ -52,24 +59,51 @@ str(data)
 
 ```
 
-(a) Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output. 
-
-* *First, is there a relationship between the predictor and the response?*
-  
 ```{r q8_step_1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
 lm.fit1 <- lm(mpg ~ horsepower, data)
 summary(lm.fit1)
 ```
-  
-* *First, is there a relationship between the predictor and the response?*
+<br>
 
-  * ii. How strong is the relationship between the predictor and the response?
-  * iii. Is the relationship between the predictor and the response positive or negative?
-  * iv. What is the predicted mpg associated with a horsepower of 98? What are the associated 95 % confidence and prediction intervals?
+**Answer:** *Yes, there is a relationship between horsepower and mpg. It's a positive relationship (coefficient is positive), but not very strong (value is only 0.11). Moreover the R-squared value is only 0.17, which means that the relationship only accounts for a very small amount of the variation in the response.* 
+<br>
 
-* (b) Plot the response and the predictor. Use the abline() function to display the least squares regression line.
+Next, plot the response and the predictor. Use the abline() function to display the least squares regression line.
 
-* (c) Use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit
+```{r q8_step_2, echo=FALSE, message=FALSE, warning=FALSE, out.width='80%', fig.align='left'}
+# Plot response and predictor
+
+ggplot(data = data, aes(y = mpg, x = horsepower )) + 
+  geom_point() + 
+  geom_smooth(method="lm", se=TRUE) +
+  ggtitle("Linear Regression: MPG vs. Horsepower")
+ggsave(filename="q8_step_2_plot.png", width = 5, height = 3)
+
+```
+<br>
+
+Next, use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit.
+
+```{r q8_step_3, echo=FALSE, message=FALSE, warning=FALSE, out.width='80%', fig.align='left'}
+
+plot(lm.fit1)
+
+# To interpret: http://docs.statwing.com/interpreting-residual-plots-to-improve-your-regression/#hetero-header
+# Also: https://data.library.virginia.edu/diagnostic-plots/
+
+# Plot 1: Residuals vs. Fitted
+# Look for a random, even cloud. If you see curves, this indicates a non-linear relationship between predictor & outcome. Likely a transformation (start with Log) may be required. Clustering indicates a missing variable. 
+
+# Plot 2: Normal Q-Q Plot
+# If things generally follow a straight line with higher density in the middle, that's good. you may see outliers that have high leverage. This is comparing the distribution of your residuals (which should be normal) to the residuals of a theoretical (normal sample). S-shaped curves denote extreme values/higher than normal variance, and concave/convex curves denote skewed distributions. 
 
 
+# Plot 3: Scale-Location Plot 
+# It’s also called Spread-Location plot. This plot shows if residuals are spread equally along the ranges of predictors. This is how you can check the assumption of equal variance (homoscedasticity). It’s good if you see a horizontal line with equally (randomly) spread points.
 
+
+# Plot 4: Residuals vs Leverage
+# Unlike the other plots, this time patterns are not relevant. We watch out for outlying values at the upper right corner or at the lower right corner. Those spots are the places where cases can be influential against a regression line. Look for cases outside of a dashed line, Cook’s distance. When cases are outside of the Cook’s distance (meaning they have high Cook’s distance scores), the cases are influential to the regression results. The regression results will be altered if we exclude those cases.
+
+```
+<br>

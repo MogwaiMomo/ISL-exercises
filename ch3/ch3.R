@@ -137,23 +137,6 @@ par(mfrow=c(2,2))
 plot(lm.fit1)
 dev.off()
 
-# To interpret: http://docs.statwing.com/interpreting-residual-plots-to-improve-your-regression/#hetero-header
-# Also: https://data.library.virginia.edu/diagnostic-plots/
-
-# Plot 1: Residuals vs. Fitted
-# Look for a random, even cloud. If you see curves, this indicates a non-linear relationship between predictor & outcome. Likely a transformation (start with Log) may be required. Clustering indicates a missing variable. 
-
-# Plot 2: Normal Q-Q Plot
-# If things generally follow a straight line with higher density in the middle, that's good. you may see outliers that have high leverage. This is comparing the distribution of your residuals (which should be normal) to the residuals of a theoretical (normal sample). S-shaped curves denote extreme values/higher than normal variance, and concave/convex curves denote skewed distributions. 
-
-
-# Plot 3: Scale-Location Plot 
-# It’s also called Spread-Location plot. This plot shows if residuals are spread equally along the ranges of predictors. This is how you can check the assumption of equal variance (homoscedasticity). It’s good if you see a horizontal line with equally (randomly) spread points.
-
-
-# Plot 4: Residuals vs Leverage
-# Unlike the other plots, this time patterns are not relevant. We watch out for outlying values at the upper right corner or at the lower right corner. Those spots are the places where cases can be influential against a regression line. Look for cases outside of a dashed line, Cook’s distance. When cases are outside of the Cook’s distance (meaning they have high Cook’s distance scores), the cases are influential to the regression results. The regression results will be altered if we exclude those cases.
-
 # Trends about this (mpg ~ horsepower) model so far: 
 
 # 1. Non linear curve in residual plot
