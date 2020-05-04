@@ -97,13 +97,26 @@ plot(lm.fit1)
 # Plot 2: Normal Q-Q Plot
 # If things generally follow a straight line with higher density in the middle, that's good. you may see outliers that have high leverage. This is comparing the distribution of your residuals (which should be normal) to the residuals of a theoretical (normal sample). S-shaped curves denote extreme values/higher than normal variance, and concave/convex curves denote skewed distributions. 
 
-
 # Plot 3: Scale-Location Plot 
 # It’s also called Spread-Location plot. This plot shows if residuals are spread equally along the ranges of predictors. This is how you can check the assumption of equal variance (homoscedasticity). It’s good if you see a horizontal line with equally (randomly) spread points.
-
 
 # Plot 4: Residuals vs Leverage
 # Unlike the other plots, this time patterns are not relevant. We watch out for outlying values at the upper right corner or at the lower right corner. Those spots are the places where cases can be influential against a regression line. Look for cases outside of a dashed line, Cook’s distance. When cases are outside of the Cook’s distance (meaning they have high Cook’s distance scores), the cases are influential to the regression results. The regression results will be altered if we exclude those cases.
 
 ```
 <br>
+
+**Answer:** *There appears to be some non-random variability in these diagnostic plots. First, they cluster in 2 groups, which indicates some kind of correlation with another predictor. Second, the left tail of the distribution of residuals appears to be much steeper than the right. Third, the scale-location plot shows heteroscedasticity of the data. But there do not appear to be any clear high-leverage outliers.* 
+
+Last, calculate the predicted mpg associated with a horsepower of 98. What are the associated 95 % confidence and prediction intervals?
+
+```{r q8_step_4, echo=TRUE, message=FALSE, warning=FALSE, out.width='80%', fig.align='left'}
+# confidence interval
+predict(lm.fit1, data.frame(horsepower = c(98)), interval = "confidence")
+
+# prediction interval
+predict(lm.fit1, data.frame(horsepower = c(98)), interval = "prediction")
+```
+
+**Answer**: *The predicted MPG for a horsepower of 98 is 28.6, but the actual value could range anywhere between 14.6 and 42.69.*
+
