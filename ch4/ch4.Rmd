@@ -1,5 +1,5 @@
 ---
-title: "ISL - Chapter 4 Exercises"
+title: "ISL Chapter 4.6 Lab: <br>Logistic Regression, LDA, QDA, and KNN"
 author: "Momoko Price"
 date: "04/05/2020"
 output: 
@@ -7,8 +7,9 @@ output:
     css: ch4.css
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, 
+```{r default_setup, include=FALSE}
+knitr::opts_chunk$set(include = T,
+                      echo = F, 
                       message = F, 
                       warning = F,
                       fig.align = 'left',
@@ -20,9 +21,40 @@ options(stringsAsFactors = F)
 require(tidyverse)
 require(data.table)
 require(ggplot2)
-require(ISLR)
-require(MASS)
 require(gridExtra)
 require(PerformanceAnalytics)
 ```
 
+```{r extras, echo=F}
+# load custom libraries
+require(ISLR)
+require(MASS)
+```
+
+```{r data, echo=F}
+# load data
+data(Smarket)
+```
+
+##### Step 1: Check data structure & quality
+```{r check_data, echo=T}
+# check structure
+str(Smarket)
+# check max/min & quantiles of each variable
+summary(Smarket)
+# facet the variables against one another & look for trends
+pairs(Smarket)
+# check for correlations (remove 'Direction' var bc it's qualitative)
+cor(Smarket[,-9])
+```
+``` {r save_plots1, include=F}
+# save larger version of plots to images folder
+png(filename="images/check_data_pairs.png", width = 1900, height = 1024)
+pairs(Smarket)
+dev.off()
+```
+
+TO DO NEXT: Gather & sort values from top to bottom
+1. Gather
+2. Sort
+3. Remove odd rows (will be duplicates)

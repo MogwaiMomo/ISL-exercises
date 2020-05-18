@@ -1,0 +1,28 @@
+---
+title: ""
+author: ""
+date: ""
+output: 
+  html_document:
+    css: report.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, 
+                      message = F, 
+                      warning = F,
+                      fig.align = 'left',
+                      out.width = '80%')
+
+# global options
+options(stringsAsFactors = F)
+# Load libraries
+require(tidyverse)
+require(data.table)
+require(ggplot2)
+require(ISLR)
+require(MASS)
+require(gridExtra)
+require(PerformanceAnalytics)
+```
+
