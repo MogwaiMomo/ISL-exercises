@@ -23,6 +23,7 @@ require(data.table)
 require(ggplot2)
 require(gridExtra)
 require(PerformanceAnalytics)
+require(magrittr)
 ```
 
 ```{r extras, echo=F}
@@ -37,7 +38,7 @@ data(Smarket)
 ```
 
 ##### Step 1: Check data structure & quality
-```{r check_data, echo=T}
+```{r check_data, include=F}
 # check structure
 str(Smarket)
 # check max/min & quantiles of each variable
@@ -46,7 +47,9 @@ summary(Smarket)
 pairs(Smarket)
 # check for correlations (remove 'Direction' var bc it's qualitative)
 cor(Smarket[,-9])
+
 ```
+
 ``` {r save_plots1, include=F}
 # save larger version of plots to images folder
 png(filename="images/check_data_pairs.png", width = 1900, height = 1024)
@@ -54,7 +57,20 @@ pairs(Smarket)
 dev.off()
 ```
 
-TO DO NEXT: Gather & sort values from top to bottom
-1. Gather
-2. Sort
-3. Remove odd rows (will be duplicates)
+``` {r sort_gather, echo=F}
+# convert to dataframe
+corr <- as.data.frame(cor(Smarket[,-9]))
+# turn rownames into a variable
+setDT(corr, keep.rownames = "var1")
+# gather corrs into single column
+corr_tidy <- corr %>% 
+  pivot_longer(c(2:9), names_to = "var2", values_to = "corr") %>% 
+  # remove self-correlations
+  filter(corr != 1) %>%
+  # sort from highest to lowest
+  arrange(desc(corr))
+# remove even rows (duplicates)
+toDelete <- seq(1, nrow(corr_tidy), 2)
+corrs <- corr_tidy[-toDelete, ]
+head(corrs, 9)
+```
