@@ -37,8 +37,9 @@ require(MASS)
 data(Smarket)
 ```
 
-##### Step 1: Check data structure & quality
-```{r check_data, include=F}
+##### 4.6.1 The Stock Market Data
+We will begin by examining some numerical and graphical summaries of the Smarket data, which is part of the ISLR library. This data set consists of percentage returns for the S&P 500 stock index over 1, 250 days, from the beginning of 2001 until the end of 2005. For each date, we have recorded the percentage returns for each of the five previous trading days, Lag1 through Lag5. We have also recorded Volume (the number of shares traded on the previous day, in billions), Today (the percentage return on the date in question) and Direction (whether the market was Up or Down on this date).
+```{r check_data, echo=T}
 # check structure
 str(Smarket)
 # check max/min & quantiles of each variable
@@ -56,8 +57,8 @@ png(filename="images/check_data_pairs.png", width = 1900, height = 1024)
 pairs(Smarket)
 dev.off()
 ```
-
-``` {r sort_gather, echo=F}
+Sort the correlations and see which variables have the strongest correlations: 
+``` {r sort_gather, echo=T}
 # convert to dataframe
 corr <- as.data.frame(cor(Smarket[,-9]))
 # turn rownames into a variable
@@ -74,3 +75,11 @@ toDelete <- seq(1, nrow(corr_tidy), 2)
 corrs <- corr_tidy[-toDelete, ]
 head(corrs, 9)
 ```
+There isn't much of an association between any variable except year and volume. Let's see what that looks like:
+``` {r plot_volume, echo=T}
+plot(Smarket$Year, Smarket$Volume, xlab = "Year", ylab = "Volume")
+```
+
+##### 4.6.2 Logistic Regression
+Next, we will fit a logistic regression model in order to predict Direction using Lag1 through Lag5 and Volume. The glm() function fits generalized linear models, a class of models that includes logistic regression. The syntax of the glm() function is similar to that of lm(), except that we must pass in the argument family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
+
