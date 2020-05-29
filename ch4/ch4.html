@@ -502,6 +502,35 @@ head(corrs, 9)</code></pre>
 <div id="logistic-regression" class="section level5">
 <h5>4.6.2 Logistic Regression</h5>
 <p>Next, we will fit a logistic regression model in order to predict Direction using Lag1 through Lag5 and Volume. The glm() function fits generalized linear models, a class of models that includes logistic regression. The syntax of the glm() function is similar to that of lm(), except that we must pass in the argument family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.</p>
+<pre class="r"><code># predict direction based on lag variables and trade volume
+stock.1 &lt;- glm(Direction ~ . -Year -Today, data = Smarket, family = binomial)
+summary(stock.1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Direction ~ . - Year - Today, family = binomial, 
+##     data = Smarket)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.446  -1.203   1.065   1.145   1.326  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -0.126000   0.240736  -0.523    0.601
+## Lag1        -0.073074   0.050167  -1.457    0.145
+## Lag2        -0.042301   0.050086  -0.845    0.398
+## Lag3         0.011085   0.049939   0.222    0.824
+## Lag4         0.009359   0.049974   0.187    0.851
+## Lag5         0.010313   0.049511   0.208    0.835
+## Volume       0.135441   0.158360   0.855    0.392
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1731.2  on 1249  degrees of freedom
+## Residual deviance: 1727.6  on 1243  degrees of freedom
+## AIC: 1741.6
+## 
+## Number of Fisher Scoring iterations: 3</code></pre>
 </div>
 
 

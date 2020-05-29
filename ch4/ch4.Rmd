@@ -83,4 +83,9 @@ plot(Smarket$Year, Smarket$Volume, xlab = "Year", ylab = "Volume")
 ##### 4.6.2 Logistic Regression
 Next, we will fit a logistic regression model in order to predict Direction using Lag1 through Lag5 and Volume. The glm() function fits generalized linear models, a class of models that includes logistic regression. The syntax of the glm() function is similar to that of lm(), except that we must pass in the argument family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
 
-TEST TESTY TEST TEST AGAIN
+``` {r glm_logistic_fit, echo=T}
+# predict direction based on lag variables and trade volume
+stock.1 <- glm(Direction ~ . -Year -Today, data = Smarket, family = binomial)
+summary(stock.1)
+
+```
