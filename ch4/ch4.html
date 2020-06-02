@@ -531,6 +531,26 @@ summary(stock.1)</code></pre>
 ## AIC: 1741.6
 ## 
 ## Number of Fisher Scoring iterations: 3</code></pre>
+<p>According to this model, there is no significant relationship between the outcome (direction of the stock on a given date) and the % change of any of the previous 5 days.</p>
+<pre class="r"><code>stock.1.probs &lt;- predict(stock.1, type=&quot;response&quot;)
+stock.1.probs[1:10]</code></pre>
+<pre><code>##         1         2         3         4         5         6         7         8 
+## 0.5070841 0.4814679 0.4811388 0.5152224 0.5107812 0.5069565 0.4926509 0.5092292 
+##         9        10 
+## 0.5176135 0.4888378</code></pre>
+<pre class="r"><code># change prob values to clear &#39;up&#39; or &#39;down&#39; values
+# first make a vector of &#39;down&#39; values the same length as the Smarket sample
+len &lt;- length(Smarket)
+stock.1.preds &lt;- rep(&quot;Down&quot;, 1250)
+stock.1.preds[stock.1.probs &gt; .5] =&quot;Up&quot;
+stock.1.preds[1:10]</code></pre>
+<pre><code>##  [1] &quot;Up&quot;   &quot;Down&quot; &quot;Down&quot; &quot;Up&quot;   &quot;Up&quot;   &quot;Up&quot;   &quot;Down&quot; &quot;Up&quot;   &quot;Up&quot;   &quot;Down&quot;</code></pre>
+<p>How do the predictions from our model compare with the actual direction values for the Smarket dataset? We can use the ‘table’ function to create a confusion matrix that compares the number of days whose directions were correctly predicted vs those that weren’t.</p>
+<pre class="r"><code>table(stock.1.preds, Smarket$Direction)</code></pre>
+<pre><code>##              
+## stock.1.preds Down  Up
+##          Down  145 141
+##          Up    457 507</code></pre>
 </div>
 
 

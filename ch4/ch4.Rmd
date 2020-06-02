@@ -87,5 +87,35 @@ Next, we will fit a logistic regression model in order to predict Direction usin
 # predict direction based on lag variables and trade volume
 stock.1 <- glm(Direction ~ . -Year -Today, data = Smarket, family = binomial)
 summary(stock.1)
+```
 
+``` {r access_model_vals, include=F}
+# try different ways to access parts of the model
+# get all the coefficients
+coef(stock.1)
+
+# get just the volume value, no key
+coef(stock.1)[[7]]
+```
+
+According to this model, there is no significant relationship between the outcome (direction of the stock on a given date) and the % change of any of the previous 5 days. 
+
+```{r predict_up, echo=T}
+stock.1.probs <- predict(stock.1, type="response")
+stock.1.probs[1:10]
+```
+
+```{r label_by_qual, echo=T}
+# change prob values to clear 'up' or 'down' values
+# first make a vector of 'down' values the same length as the Smarket sample
+len <- length(Smarket)
+stock.1.preds <- rep("Down", 1250)
+stock.1.preds[stock.1.probs > .5] ="Up"
+stock.1.preds[1:10]
+```
+
+How do the predictions from our model compare with the actual direction values for the Smarket dataset? We can use the 'table' function to create a confusion matrix that compares the number of days whose directions were correctly predicted vs those that weren't. 
+
+```{r confusion_matrix, echo=T}
+table(stock.1.preds, Smarket$Direction)
 ```
