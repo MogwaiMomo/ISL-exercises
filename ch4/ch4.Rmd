@@ -117,5 +117,35 @@ stock.1.preds[1:10]
 How do the predictions from our model compare with the actual direction values for the Smarket dataset? We can use the 'table' function to create a confusion matrix that compares the number of days whose directions were correctly predicted vs those that weren't. 
 
 ```{r confusion_matrix, echo=T}
+# create confusion matrix
 table(stock.1.preds, Smarket$Direction)
+# calculate the % of correct predictions using the mean() function
+mean(stock.1.preds == Smarket$Direction)
+# calculate the % of incorrect predictions using the mean() function
+mean(stock.1.preds != Smarket$Direction)
+```
+
+This looks like it might be a little better than random, but remember it's the training error rate, not the testing error rate! To get a better estimate of model predictability, what you'd need to do is set aside a sample of data that won't be included in building the model and then use that to generate model outcomes based on the sample's predictors and check how accurate they are, like so: 
+
+```{r create_testing_data, echo=T}
+# create a vector of logical values that label each obs as either before (T) or during (F) 2005
+train <- (Smarket$Year < 2005)
+# use this to create a subset of Smarket data that's only those IN 2005
+Smarket.2005 <- Smarket[!train,]
+# create a single-var vector of predictions from this data
+Direction.2005 <- Smarket$Direction[!train]
+```
+
+Now we set a new model using ONLY data from before 2005 (i.e. our training data), like so: 
+
+```{r train_test_log_model, echo=T}
+# create the model (i.e. "train")
+pre2005.fit <- glm(Direction ~ . -Today -Year, data=Smarket, family=binomial, subset=train)
+# generate predictions from the model(i.e. "test")
+pre2005.fit.probs <- predict(pre2005.fit, Smarket.2005, type="response")
+# convert to qualitative labels ("Up", "Down")
+pre2005.preds <- rep("Down", 252)
+pre2005.preds[pre2005.fit.probs >0.5] <- "Up"
+table(pre2005.preds, Direction.2005)
+mean(pre2005.preds == Direction.2005)
 ```
