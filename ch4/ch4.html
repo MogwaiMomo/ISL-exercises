@@ -546,11 +546,86 @@ stock.1.preds[stock.1.probs &gt; .5] =&quot;Up&quot;
 stock.1.preds[1:10]</code></pre>
 <pre><code>##  [1] &quot;Up&quot;   &quot;Down&quot; &quot;Down&quot; &quot;Up&quot;   &quot;Up&quot;   &quot;Up&quot;   &quot;Down&quot; &quot;Up&quot;   &quot;Up&quot;   &quot;Down&quot;</code></pre>
 <p>How do the predictions from our model compare with the actual direction values for the Smarket dataset? We can use the ‘table’ function to create a confusion matrix that compares the number of days whose directions were correctly predicted vs those that weren’t.</p>
-<pre class="r"><code>table(stock.1.preds, Smarket$Direction)</code></pre>
+<pre class="r"><code># create confusion matrix
+table(stock.1.preds, Smarket$Direction)</code></pre>
 <pre><code>##              
 ## stock.1.preds Down  Up
 ##          Down  145 141
 ##          Up    457 507</code></pre>
+<pre class="r"><code># calculate the % of correct predictions using the mean() function
+mean(stock.1.preds == Smarket$Direction)</code></pre>
+<pre><code>## [1] 0.5216</code></pre>
+<pre class="r"><code># calculate the % of incorrect predictions using the mean() function
+mean(stock.1.preds != Smarket$Direction)</code></pre>
+<pre><code>## [1] 0.4784</code></pre>
+<p>This looks like it might be a little better than random, but remember it’s the training error rate, not the testing error rate! To get a better estimate of model predictability, what you’d need to do is set aside a sample of data that won’t be included in building the model and then use that to generate model outcomes based on the sample’s predictors and check how accurate they are, like so:</p>
+<pre class="r"><code># create a vector of logical values that label each obs as either before (T) or during (F) 2005
+train &lt;- (Smarket$Year &lt; 2005)
+test &lt;- (Smarket$Year == 2005)
+# use this to create a subset of Smarket data that&#39;s only those IN 2005
+Smarket.2005 &lt;- Smarket[test,]
+# create a single-var vector of test predictions from this data
+Direction.2005 &lt;- Smarket.2005$Direction</code></pre>
+<p>Now we set a new model using ONLY data from before 2005 (i.e. our training data), like so:</p>
+<pre class="r"><code># create the model (i.e. &quot;train&quot;)
+pre2005.fit &lt;- glm(Direction ~ . -Today -Year, data=Smarket, family=binomial, subset=train)
+# generate predictions from the model(i.e. &quot;test&quot;)
+pre2005.fit.probs &lt;- predict(pre2005.fit, Smarket.2005, type=&quot;response&quot;)
+# convert to qualitative labels (&quot;Up&quot;, &quot;Down&quot;)
+pre2005.fit.preds &lt;- rep(&quot;Down&quot;, 252)
+pre2005.fit.preds[pre2005.fit.probs &gt;0.5] &lt;- &quot;Up&quot;
+table(pre2005.fit.preds, Direction.2005)</code></pre>
+<pre><code>##                  Direction.2005
+## pre2005.fit.preds Down Up
+##              Down   77 97
+##              Up     34 44</code></pre>
+<pre class="r"><code>mean(pre2005.fit.preds == Direction.2005)</code></pre>
+<pre><code>## [1] 0.4801587</code></pre>
+<p>This model has an accuracy of less than 50% (or a test error rate of 52%) - not great! How can we improve this model? One way would be to remove the predictors with the highest p values. Let’s see what happens if we do this.</p>
+<pre class="r"><code># identify the higher p-values
+summary(pre2005.fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Direction ~ . - Today - Year, family = binomial, 
+##     data = Smarket, subset = train)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.302  -1.190   1.079   1.160   1.350  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)  0.191213   0.333690   0.573    0.567
+## Lag1        -0.054178   0.051785  -1.046    0.295
+## Lag2        -0.045805   0.051797  -0.884    0.377
+## Lag3         0.007200   0.051644   0.139    0.889
+## Lag4         0.006441   0.051706   0.125    0.901
+## Lag5        -0.004223   0.051138  -0.083    0.934
+## Volume      -0.116257   0.239618  -0.485    0.628
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1383.3  on 997  degrees of freedom
+## Residual deviance: 1381.1  on 991  degrees of freedom
+## AIC: 1395.1
+## 
+## Number of Fisher Scoring iterations: 3</code></pre>
+<pre class="r"><code># train new model only using Lag1 and Lag2 as predictors
+lag1lag2.fit &lt;- glm(Direction ~ Lag1 + Lag2, data = Smarket, family = binomial, subset = train)
+# test new model with test data
+lag1lag2.fit.probs &lt;- predict(lag1lag2.fit, Smarket.2005, type=&quot;response&quot;)
+# convert to qual values
+lag1lag2.fit.preds &lt;- rep(&quot;Down&quot;, length(Smarket.2005))
+lag1lag2.fit.preds[lag1lag2.fit.probs &gt; 0.5] &lt;- &quot;Up&quot;
+lag1lag2.fit.preds[lag1lag2.fit.probs &lt;= 0.5] &lt;- &quot;Down&quot;
+# create confusion matrix to gauge error rate (predictions vs. test data)
+table(lag1lag2.fit.preds, Direction.2005)</code></pre>
+<pre><code>##                   Direction.2005
+## lag1lag2.fit.preds Down  Up
+##               Down   35  35
+##               Up     76 106</code></pre>
+<pre class="r"><code>mean(lag1lag2.fit.preds == Direction.2005)</code></pre>
+<pre><code>## [1] 0.5595238</code></pre>
 </div>
 
 

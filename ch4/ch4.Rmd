@@ -130,10 +130,11 @@ This looks like it might be a little better than random, but remember it's the t
 ```{r create_testing_data, echo=T}
 # create a vector of logical values that label each obs as either before (T) or during (F) 2005
 train <- (Smarket$Year < 2005)
+test <- (Smarket$Year == 2005)
 # use this to create a subset of Smarket data that's only those IN 2005
-Smarket.2005 <- Smarket[!train,]
-# create a single-var vector of predictions from this data
-Direction.2005 <- Smarket$Direction[!train]
+Smarket.2005 <- Smarket[test,]
+# create a single-var vector of test predictions from this data
+Direction.2005 <- Smarket.2005$Direction
 ```
 
 Now we set a new model using ONLY data from before 2005 (i.e. our training data), like so: 
@@ -144,8 +145,25 @@ pre2005.fit <- glm(Direction ~ . -Today -Year, data=Smarket, family=binomial, su
 # generate predictions from the model(i.e. "test")
 pre2005.fit.probs <- predict(pre2005.fit, Smarket.2005, type="response")
 # convert to qualitative labels ("Up", "Down")
-pre2005.preds <- rep("Down", 252)
-pre2005.preds[pre2005.fit.probs >0.5] <- "Up"
-table(pre2005.preds, Direction.2005)
-mean(pre2005.preds == Direction.2005)
+pre2005.fit.preds <- rep("Down", 252)
+pre2005.fit.preds[pre2005.fit.probs >0.5] <- "Up"
+table(pre2005.fit.preds, Direction.2005)
+mean(pre2005.fit.preds == Direction.2005)
 ```
+This model has an accuracy of less than 50% (or a test error rate of 52%) - not great! How can we improve this model? One way would be to remove the predictors with the highest p values. Let's see what happens if we do this. 
+```{r remove_high_pvals, echo=T}
+# identify the higher p-values
+summary(pre2005.fit)
+# train new model only using Lag1 and Lag2 as predictors
+lag1lag2.fit <- glm(Direction ~ Lag1 + Lag2, data = Smarket, family = binomial, subset = train)
+# test new model with test data
+lag1lag2.fit.probs <- predict(lag1lag2.fit, Smarket.2005, type="response")
+# convert to qual values
+lag1lag2.fit.preds <- rep("Down", length(Smarket.2005))
+lag1lag2.fit.preds[lag1lag2.fit.probs > 0.5] <- "Up"
+lag1lag2.fit.preds[lag1lag2.fit.probs <= 0.5] <- "Down"
+# create confusion matrix to gauge error rate (predictions vs. test data)
+table(lag1lag2.fit.preds, Direction.2005)
+mean(lag1lag2.fit.preds != Direction.2005)
+```
+Test error rate is slightly better, but not great. But better than before!
