@@ -24,6 +24,7 @@ require(ggplot2)
 require(gridExtra)
 require(PerformanceAnalytics)
 require(magrittr)
+require(MASS)
 ```
 
 ```{r extras, echo=F}
@@ -166,4 +167,34 @@ lag1lag2.fit.preds[lag1lag2.fit.probs <= 0.5] <- "Down"
 table(lag1lag2.fit.preds, Direction.2005)
 mean(lag1lag2.fit.preds != Direction.2005)
 ```
-Test error rate is slightly better, but not great. But better than before!
+Test error rate is slightly better, but not great. But better than before! Using this model, let's use the predict function to actually make a prediction of what the stock direction would be given an exact-value vector of predictors. 
+
+```{r predict_exact, echo=T}
+# test new model with an exact-value vector
+exact.probs <- predict(lag1lag2.fit, newdata= data.frame(Lag1 = c(1.2, 1.5), Lag2 = c(1.1, -0.8)), type="response")
+# convert to qual values
+exact.preds <- rep("Down", length(exact.probs))
+exact.preds[exact.probs > 0.5] <- "Up"
+```
+
+##### 4.6.3 Linear Discriminant Analysis
+
+Let's now try building a predictive model on the Smarket data (just using Lag1 and Lag2 as predictors), using Linear Discriminant Analysis:
+
+```{r train_lda, echo=t}
+# train model with pre2005 data, using the subset function and the 'train' vector
+lda.fit <- lda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+# note that for LDA you don't have to use 'summary' to get the analysis
+lda.fit
+# plot the linear discriminants, which means the histogram distributions of y values with the linear discriminant function of y = -0.642*Lag1-0.514*Lag2.  
+plot(lda.fit)
+```
+The LDA plot gives us a general perspective of how distinct th distribution of training values are between the two classes, using the linear model we've built using Lag1 and Lag2 as our predictors. (Clearly there is not much of a difference between the two, but the distribution of down values is lower overall than that of the up values.)
+
+Let's now test the model using our test data:
+```{r test_lda echo=T}
+lda.pred.values <- predict(lda.fit, Smarket.2005)
+lda.preds <- lda.pred.values$class
+table(lda.preds, Direction.2005)
+mean(lda.preds == Direction.2005)
+```
