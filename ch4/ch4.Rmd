@@ -30,7 +30,8 @@ require(MASS)
 ```{r extras, echo=F}
 # load custom libraries
 require(ISLR)
-require(MASS)
+require(MASS) # for lda, qda modeling
+require(class) # for KNN modeling
 ```
 
 ```{r data, echo=F}
@@ -192,9 +193,24 @@ plot(lda.fit)
 The LDA plot gives us a general perspective of how distinct th distribution of training values are between the two classes, using the linear model we've built using Lag1 and Lag2 as our predictors. (Clearly there is not much of a difference between the two, but the distribution of down values is lower overall than that of the up values.)
 
 Let's now test the model using our test data:
-```{r test_lda echo=T}
+```{r test_lda, echo=T}
 lda.pred.values <- predict(lda.fit, Smarket.2005)
 lda.preds <- lda.pred.values$class
 table(lda.preds, Direction.2005)
 mean(lda.preds == Direction.2005)
 ```
+Note that 'posterior probability' refers to the probability of an outcome/prediction GIVEN a specific set of predictors.
+
+##### 4.6.4 Quadratic Discriminant Analysis
+QDA is basically the same as LDA in concept, it just has less bias, which allows for better fitting, but leaves it vulnerable to overfitting as well. Let's fit the Smarket data to a QDA model and see how accurately it predicts: 
+```{r train_qda, echo=T}
+qda.fit <- qda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+qda.fit
+```
+```{r test_qda, echo=TRUE}
+qda.preds <- predict(qda.fit, Smarket.2005)$class
+table(qda.preds, Direction.2005)
+mean(qda.preds == Direction.2005)
+```
+##### 4.6.5 K-Nearest Neighbours
+We will now perform KNN using the knn() function, which is part of the class library. This function works rather differently from the other model- fitting functions that we have encountered thus far. Rather than a two-step approach in which we first fit the model and then we use the model to make predictions, knn() forms predictions using a single command, and requires four inputs.
