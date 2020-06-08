@@ -214,3 +214,35 @@ mean(qda.preds == Direction.2005)
 ```
 ##### 4.6.5 K-Nearest Neighbours
 We will now perform KNN using the knn() function, which is part of the class library. This function works rather differently from the other model- fitting functions that we have encountered thus far. Rather than a two-step approach in which we first fit the model and then we use the model to make predictions, knn() forms predictions using a single command, and requires four inputs.
+
+```{r knn, echo=T}
+# set up your data - first the matrix of predictors (which will get split into training and testing subsets when input into the knn model)
+Smarket.knn <- cbind(Smarket$Lag1, Smarket$Lag2)
+# next, your vector of training outcomes
+Direction.pre2005 <- Smarket$Direction[train]
+
+set.seed(1)
+# order of inputs: training predictors, test predictors, training outcomes, # of nearest neighbours
+# output of knn is just a vector of predicted outcomes
+knn.pred <- knn(Smarket.knn[train,], 
+                Smarket.knn[!train,], 
+                Direction.pre2005, 
+                k=1)
+# test the accuracy against the test outcomes
+table(knn.pred, Direction.2005)
+mean(knn.pred == Direction.2005)
+```
+Hm, the accuracy of the predictions are clearly pretty garbage (same as random). Let's try increasing the # of nearest neighbours to 3 and see what happens
+```{r knn_k3, echo=T}
+knn.pred.k3 <- knn(Smarket.knn[train,], 
+                Smarket.knn[!train,], 
+                Direction.pre2005, 
+                k=3)
+# test the accuracy against the test outcomes
+table(knn.pred.k3, Direction.2005)
+mean(knn.pred.k3 == Direction.2005)
+```
+Hm, by increasing K we can get an accuracy of about 54% - so out of the 4 tests we ran (logistical regression, LDA, QDA, and KNN), QDA is our best model (accuracy = 56%) using 2 predictors. 
+
+##### 4.6.6 An Application to Caravan Insurance Data
+Finally, we will apply the KNN approach to the Caravan data set, which is part of the ISLR library. This data set includes 85 predictors that measure demographic characteristics for 5,822 individuals. The response variable is Purchase, which indicates whether or not a given individual purchases a caravan insurance policy. In this data set, only 6% of people purchased caravan insurance.
