@@ -246,3 +246,45 @@ Hm, by increasing K we can get an accuracy of about 54% - so out of the 4 tests 
 
 ##### 4.6.6 An Application to Caravan Insurance Data
 Finally, we will apply the KNN approach to the Caravan data set, which is part of the ISLR library. This data set includes 85 predictors that measure demographic characteristics for 5,822 individuals. The response variable is Purchase, which indicates whether or not a given individual purchases a caravan insurance policy. In this data set, only 6% of people purchased caravan insurance.
+
+```{r caravan_data, echo=F}
+# load data
+data(Caravan)
+```
+```{r explore_caravan, echo=T}
+# check structure
+str(Caravan)
+# check max/min & quantiles of each variable
+summary(Caravan)
+# facet the variables against one another & look for trends
+## pairs(Caravan) - don't bother, too many plots to fit space
+# check for correlations (remove 'Direction' var bc it's qualitative)
+cors <- as.data.frame(cor(Caravan[,-86]))
+# Sort the correlations and see which variables have the strongest correlations: 
+# turn rownames into a variable
+setDT(cors, keep.rownames = "var1")
+# gather corrs into single column
+cors_tidy <- cors %>% 
+  pivot_longer(c(2:86), names_to = "var2", values_to = "cors") %>% 
+  # remove self-correlations
+ filter(cors != 1) %>%
+# sort from highest to lowest
+  arrange(desc(cors))
+# remove even rows (duplicates)
+toDelete <- seq(1, nrow(cors_tidy), 2)
+cors <- cors_tidy[-toDelete, ]
+head(cors, 9)
+tail(cors, 9)
+# how many people actually purchased a caravan? 
+purchased <- summary(Caravan$Purchase)[['Yes']]
+# get the conversion rate
+purchased/nrow(Caravan)
+```
+Well that initial exploration shows us that some predictors are HIGHLY correlated. Won't do anything about that now. Let's prep the data for KNN, given that the variable 'Purchase' is our qualitative outcome. 
+
+The next step in our KNN analysis is to *standardize* our predictors using the 'scale' function. 
+Because the KNN classifier predicts the class of a given test observation by identifying the observations that are nearest to it, the scale of the variables matters. Any variables that are on a large scale will have a much larger effect on the distance between the observations, and hence on the KNN classifier, than variables that are on a small scale. For instance, imagine a data set that contains two variables, salary and age (measured in dollars and years, respectively). As far as KNN is concerned, a difference of \$1,000 in salary is enormous compared to a difference of 50 years in age. Conse- quently, salary will drive the KNN classification results, and age will have almost no effect. This is contrary to our intuition that a salary difference of \$1,000 is quite small compared to an age difference of 50 years. Furthermore, the importance of scale to the KNN classifier leads to another issue: if we measured salary in Japanese yen, or if we measured age in minutes, then we’d get quite different classification results from what we get if these two variables are measured in dollars and years.
+A good way to handle this problem is to standardize the data so that all variables are given a mean of zero and a standard deviation of one. Then all variables will be on a comparable scale. The scale() function does just this. In standardizing the data, we exclude column 86, because that is the qualitative Purchase variable.
+```{r standardize, echo=T}
+
+```

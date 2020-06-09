@@ -736,6 +736,293 @@ table(knn.pred.k3, Direction.2005)</code></pre>
 </div>
 <div id="an-application-to-caravan-insurance-data" class="section level5">
 <h5>4.6.6 An Application to Caravan Insurance Data</h5>
+<p>Finally, we will apply the KNN approach to the Caravan data set, which is part of the ISLR library. This data set includes 85 predictors that measure demographic characteristics for 5,822 individuals. The response variable is Purchase, which indicates whether or not a given individual purchases a caravan insurance policy. In this data set, only 6% of people purchased caravan insurance.</p>
+<pre class="r"><code># check structure
+str(Caravan)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    5822 obs. of  86 variables:
+##  $ MOSTYPE : num  33 37 37 9 40 23 39 33 33 11 ...
+##  $ MAANTHUI: num  1 1 1 1 1 1 2 1 1 2 ...
+##  $ MGEMOMV : num  3 2 2 3 4 2 3 2 2 3 ...
+##  $ MGEMLEEF: num  2 2 2 3 2 1 2 3 4 3 ...
+##  $ MOSHOOFD: num  8 8 8 3 10 5 9 8 8 3 ...
+##  $ MGODRK  : num  0 1 0 2 1 0 2 0 0 3 ...
+##  $ MGODPR  : num  5 4 4 3 4 5 2 7 1 5 ...
+##  $ MGODOV  : num  1 1 2 2 1 0 0 0 3 0 ...
+##  $ MGODGE  : num  3 4 4 4 4 5 5 2 6 2 ...
+##  $ MRELGE  : num  7 6 3 5 7 0 7 7 6 7 ...
+##  $ MRELSA  : num  0 2 2 2 1 6 2 2 0 0 ...
+##  $ MRELOV  : num  2 2 4 2 2 3 0 0 3 2 ...
+##  $ MFALLEEN: num  1 0 4 2 2 3 0 0 3 2 ...
+##  $ MFGEKIND: num  2 4 4 3 4 5 3 5 3 2 ...
+##  $ MFWEKIND: num  6 5 2 4 4 2 6 4 3 6 ...
+##  $ MOPLHOOG: num  1 0 0 3 5 0 0 0 0 0 ...
+##  $ MOPLMIDD: num  2 5 5 4 4 5 4 3 1 4 ...
+##  $ MOPLLAAG: num  7 4 4 2 0 4 5 6 8 5 ...
+##  $ MBERHOOG: num  1 0 0 4 0 2 0 2 1 2 ...
+##  $ MBERZELF: num  0 0 0 0 5 0 0 0 1 0 ...
+##  $ MBERBOER: num  1 0 0 0 4 0 0 0 0 0 ...
+##  $ MBERMIDD: num  2 5 7 3 0 4 4 2 1 3 ...
+##  $ MBERARBG: num  5 0 0 1 0 2 1 5 8 3 ...
+##  $ MBERARBO: num  2 4 2 2 0 2 5 2 1 3 ...
+##  $ MSKA    : num  1 0 0 3 9 2 0 2 1 1 ...
+##  $ MSKB1   : num  1 2 5 2 0 2 1 1 1 2 ...
+##  $ MSKB2   : num  2 3 0 1 0 2 4 2 0 1 ...
+##  $ MSKC    : num  6 5 4 4 0 4 5 5 8 4 ...
+##  $ MSKD    : num  1 0 0 0 0 2 0 2 1 2 ...
+##  $ MHHUUR  : num  1 2 7 5 4 9 6 0 9 0 ...
+##  $ MHKOOP  : num  8 7 2 4 5 0 3 9 0 9 ...
+##  $ MAUT1   : num  8 7 7 9 6 5 8 4 5 6 ...
+##  $ MAUT2   : num  0 1 0 0 2 3 0 4 2 1 ...
+##  $ MAUT0   : num  1 2 2 0 1 3 1 2 3 2 ...
+##  $ MZFONDS : num  8 6 9 7 5 9 9 6 7 6 ...
+##  $ MZPART  : num  1 3 0 2 4 0 0 3 2 3 ...
+##  $ MINKM30 : num  0 2 4 1 0 5 4 2 7 2 ...
+##  $ MINK3045: num  4 0 5 5 0 2 3 5 2 3 ...
+##  $ MINK4575: num  5 5 0 3 9 3 3 3 1 3 ...
+##  $ MINK7512: num  0 2 0 0 0 0 0 0 0 1 ...
+##  $ MINK123M: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ MINKGEM : num  4 5 3 4 6 3 3 3 2 4 ...
+##  $ MKOOPKLA: num  3 4 4 4 3 3 5 3 3 7 ...
+##  $ PWAPART : num  0 2 2 0 0 0 0 0 0 2 ...
+##  $ PWABEDR : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PWALAND : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PPERSAUT: num  6 0 6 6 0 6 6 0 5 0 ...
+##  $ PBESAUT : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PMOTSCO : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PVRAAUT : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PAANHANG: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PTRACTOR: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PWERKT  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PBROM   : num  0 0 0 0 0 0 0 3 0 0 ...
+##  $ PLEVEN  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PPERSONG: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PGEZONG : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PWAOREG : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PBRAND  : num  5 2 2 2 6 0 0 0 0 3 ...
+##  $ PZEILPL : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PPLEZIER: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PFIETS  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PINBOED : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PBYSTAND: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AWAPART : num  0 2 1 0 0 0 0 0 0 1 ...
+##  $ AWABEDR : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AWALAND : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ APERSAUT: num  1 0 1 1 0 1 1 0 1 0 ...
+##  $ ABESAUT : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AMOTSCO : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AVRAAUT : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AAANHANG: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ATRACTOR: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AWERKT  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ABROM   : num  0 0 0 0 0 0 0 1 0 0 ...
+##  $ ALEVEN  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ APERSONG: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AGEZONG : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AWAOREG : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ABRAND  : num  1 1 1 1 1 0 0 0 0 1 ...
+##  $ AZEILPL : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ APLEZIER: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AFIETS  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ AINBOED : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ABYSTAND: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Purchase: Factor w/ 2 levels &quot;No&quot;,&quot;Yes&quot;: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<pre class="r"><code># check max/min &amp; quantiles of each variable
+summary(Caravan)</code></pre>
+<pre><code>##     MOSTYPE         MAANTHUI         MGEMOMV         MGEMLEEF    
+##  Min.   : 1.00   Min.   : 1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:10.00   1st Qu.: 1.000   1st Qu.:2.000   1st Qu.:2.000  
+##  Median :30.00   Median : 1.000   Median :3.000   Median :3.000  
+##  Mean   :24.25   Mean   : 1.111   Mean   :2.679   Mean   :2.991  
+##  3rd Qu.:35.00   3rd Qu.: 1.000   3rd Qu.:3.000   3rd Qu.:3.000  
+##  Max.   :41.00   Max.   :10.000   Max.   :5.000   Max.   :6.000  
+##     MOSHOOFD          MGODRK           MGODPR          MGODOV    
+##  Min.   : 1.000   Min.   :0.0000   Min.   :0.000   Min.   :0.00  
+##  1st Qu.: 3.000   1st Qu.:0.0000   1st Qu.:4.000   1st Qu.:0.00  
+##  Median : 7.000   Median :0.0000   Median :5.000   Median :1.00  
+##  Mean   : 5.774   Mean   :0.6965   Mean   :4.627   Mean   :1.07  
+##  3rd Qu.: 8.000   3rd Qu.:1.0000   3rd Qu.:6.000   3rd Qu.:2.00  
+##  Max.   :10.000   Max.   :9.0000   Max.   :9.000   Max.   :5.00  
+##      MGODGE          MRELGE          MRELSA           MRELOV    
+##  Min.   :0.000   Min.   :0.000   Min.   :0.0000   Min.   :0.00  
+##  1st Qu.:2.000   1st Qu.:5.000   1st Qu.:0.0000   1st Qu.:1.00  
+##  Median :3.000   Median :6.000   Median :1.0000   Median :2.00  
+##  Mean   :3.259   Mean   :6.183   Mean   :0.8835   Mean   :2.29  
+##  3rd Qu.:4.000   3rd Qu.:7.000   3rd Qu.:1.0000   3rd Qu.:3.00  
+##  Max.   :9.000   Max.   :9.000   Max.   :7.0000   Max.   :9.00  
+##     MFALLEEN        MFGEKIND       MFWEKIND      MOPLHOOG        MOPLMIDD    
+##  Min.   :0.000   Min.   :0.00   Min.   :0.0   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:0.000   1st Qu.:2.00   1st Qu.:3.0   1st Qu.:0.000   1st Qu.:2.000  
+##  Median :2.000   Median :3.00   Median :4.0   Median :1.000   Median :3.000  
+##  Mean   :1.888   Mean   :3.23   Mean   :4.3   Mean   :1.461   Mean   :3.351  
+##  3rd Qu.:3.000   3rd Qu.:4.00   3rd Qu.:6.0   3rd Qu.:2.000   3rd Qu.:4.000  
+##  Max.   :9.000   Max.   :9.00   Max.   :9.0   Max.   :9.000   Max.   :9.000  
+##     MOPLLAAG        MBERHOOG        MBERZELF        MBERBOER     
+##  Min.   :0.000   Min.   :0.000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:3.000   1st Qu.:0.000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :5.000   Median :2.000   Median :0.000   Median :0.0000  
+##  Mean   :4.572   Mean   :1.895   Mean   :0.398   Mean   :0.5223  
+##  3rd Qu.:6.000   3rd Qu.:3.000   3rd Qu.:1.000   3rd Qu.:1.0000  
+##  Max.   :9.000   Max.   :9.000   Max.   :5.000   Max.   :9.0000  
+##     MBERMIDD        MBERARBG       MBERARBO          MSKA           MSKB1      
+##  Min.   :0.000   Min.   :0.00   Min.   :0.000   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:2.000   1st Qu.:1.00   1st Qu.:1.000   1st Qu.:0.000   1st Qu.:1.000  
+##  Median :3.000   Median :2.00   Median :2.000   Median :1.000   Median :2.000  
+##  Mean   :2.899   Mean   :2.22   Mean   :2.306   Mean   :1.621   Mean   :1.607  
+##  3rd Qu.:4.000   3rd Qu.:3.00   3rd Qu.:3.000   3rd Qu.:2.000   3rd Qu.:2.000  
+##  Max.   :9.000   Max.   :9.00   Max.   :9.000   Max.   :9.000   Max.   :9.000  
+##      MSKB2            MSKC            MSKD           MHHUUR     
+##  Min.   :0.000   Min.   :0.000   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:1.000   1st Qu.:2.000   1st Qu.:0.000   1st Qu.:2.000  
+##  Median :2.000   Median :4.000   Median :1.000   Median :4.000  
+##  Mean   :2.203   Mean   :3.759   Mean   :1.067   Mean   :4.237  
+##  3rd Qu.:3.000   3rd Qu.:5.000   3rd Qu.:2.000   3rd Qu.:7.000  
+##  Max.   :9.000   Max.   :9.000   Max.   :9.000   Max.   :9.000  
+##      MHKOOP          MAUT1          MAUT2           MAUT0          MZFONDS     
+##  Min.   :0.000   Min.   :0.00   Min.   :0.000   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:2.000   1st Qu.:5.00   1st Qu.:0.000   1st Qu.:1.000   1st Qu.:5.000  
+##  Median :5.000   Median :6.00   Median :1.000   Median :2.000   Median :7.000  
+##  Mean   :4.772   Mean   :6.04   Mean   :1.316   Mean   :1.959   Mean   :6.277  
+##  3rd Qu.:7.000   3rd Qu.:7.00   3rd Qu.:2.000   3rd Qu.:3.000   3rd Qu.:8.000  
+##  Max.   :9.000   Max.   :9.00   Max.   :7.000   Max.   :9.000   Max.   :9.000  
+##      MZPART         MINKM30         MINK3045        MINK4575    
+##  Min.   :0.000   Min.   :0.000   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:1.000   1st Qu.:1.000   1st Qu.:2.000   1st Qu.:1.000  
+##  Median :2.000   Median :2.000   Median :4.000   Median :3.000  
+##  Mean   :2.729   Mean   :2.574   Mean   :3.536   Mean   :2.731  
+##  3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:5.000   3rd Qu.:4.000  
+##  Max.   :9.000   Max.   :9.000   Max.   :9.000   Max.   :9.000  
+##     MINK7512         MINK123M         MINKGEM         MKOOPKLA    
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.000   Min.   :1.000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:3.000  
+##  Median :0.0000   Median :0.0000   Median :4.000   Median :4.000  
+##  Mean   :0.7961   Mean   :0.2027   Mean   :3.784   Mean   :4.236  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:4.000   3rd Qu.:6.000  
+##  Max.   :9.0000   Max.   :9.0000   Max.   :9.000   Max.   :8.000  
+##     PWAPART          PWABEDR           PWALAND           PPERSAUT   
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.00  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00  
+##  Median :0.0000   Median :0.00000   Median :0.00000   Median :5.00  
+##  Mean   :0.7712   Mean   :0.04002   Mean   :0.07162   Mean   :2.97  
+##  3rd Qu.:2.0000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:6.00  
+##  Max.   :3.0000   Max.   :6.00000   Max.   :4.00000   Max.   :8.00  
+##     PBESAUT           PMOTSCO          PVRAAUT            PAANHANG      
+##  Min.   :0.00000   Min.   :0.0000   Min.   :0.000000   Min.   :0.00000  
+##  1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.000000   1st Qu.:0.00000  
+##  Median :0.00000   Median :0.0000   Median :0.000000   Median :0.00000  
+##  Mean   :0.04827   Mean   :0.1754   Mean   :0.009447   Mean   :0.02096  
+##  3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.000000   3rd Qu.:0.00000  
+##  Max.   :7.00000   Max.   :7.0000   Max.   :9.000000   Max.   :5.00000  
+##     PTRACTOR           PWERKT            PBROM           PLEVEN      
+##  Min.   :0.00000   Min.   :0.00000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :0.00000   Median :0.00000   Median :0.000   Median :0.0000  
+##  Mean   :0.09258   Mean   :0.01305   Mean   :0.215   Mean   :0.1948  
+##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.000   3rd Qu.:0.0000  
+##  Max.   :6.00000   Max.   :6.00000   Max.   :6.000   Max.   :9.0000  
+##     PPERSONG          PGEZONG           PWAOREG            PBRAND     
+##  Min.   :0.00000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000  
+##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000  
+##  Median :0.00000   Median :0.00000   Median :0.00000   Median :2.000  
+##  Mean   :0.01374   Mean   :0.01529   Mean   :0.02353   Mean   :1.828  
+##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:4.000  
+##  Max.   :6.00000   Max.   :3.00000   Max.   :7.00000   Max.   :8.000  
+##     PZEILPL             PPLEZIER           PFIETS           PINBOED       
+##  Min.   :0.0000000   Min.   :0.00000   Min.   :0.00000   Min.   :0.00000  
+##  1st Qu.:0.0000000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000  
+##  Median :0.0000000   Median :0.00000   Median :0.00000   Median :0.00000  
+##  Mean   :0.0008588   Mean   :0.01889   Mean   :0.02525   Mean   :0.01563  
+##  3rd Qu.:0.0000000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+##  Max.   :3.0000000   Max.   :6.00000   Max.   :1.00000   Max.   :6.00000  
+##     PBYSTAND          AWAPART         AWABEDR           AWALAND       
+##  Min.   :0.00000   Min.   :0.000   Min.   :0.00000   Min.   :0.00000  
+##  1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.00000   1st Qu.:0.00000  
+##  Median :0.00000   Median :0.000   Median :0.00000   Median :0.00000  
+##  Mean   :0.04758   Mean   :0.403   Mean   :0.01477   Mean   :0.02061  
+##  3rd Qu.:0.00000   3rd Qu.:1.000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+##  Max.   :5.00000   Max.   :2.000   Max.   :5.00000   Max.   :1.00000  
+##     APERSAUT         ABESAUT           AMOTSCO           AVRAAUT        
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000000  
+##  1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000000  
+##  Median :1.0000   Median :0.00000   Median :0.00000   Median :0.000000  
+##  Mean   :0.5622   Mean   :0.01048   Mean   :0.04105   Mean   :0.002233  
+##  3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.000000  
+##  Max.   :7.0000   Max.   :4.00000   Max.   :8.00000   Max.   :3.000000  
+##     AAANHANG          ATRACTOR           AWERKT             ABROM        
+##  Min.   :0.00000   Min.   :0.00000   Min.   :0.000000   Min.   :0.00000  
+##  1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000000   1st Qu.:0.00000  
+##  Median :0.00000   Median :0.00000   Median :0.000000   Median :0.00000  
+##  Mean   :0.01254   Mean   :0.03367   Mean   :0.006183   Mean   :0.07042  
+##  3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.000000   3rd Qu.:0.00000  
+##  Max.   :3.00000   Max.   :4.00000   Max.   :6.000000   Max.   :2.00000  
+##      ALEVEN           APERSONG           AGEZONG            AWAOREG        
+##  Min.   :0.00000   Min.   :0.000000   Min.   :0.000000   Min.   :0.000000  
+##  1st Qu.:0.00000   1st Qu.:0.000000   1st Qu.:0.000000   1st Qu.:0.000000  
+##  Median :0.00000   Median :0.000000   Median :0.000000   Median :0.000000  
+##  Mean   :0.07661   Mean   :0.005325   Mean   :0.006527   Mean   :0.004638  
+##  3rd Qu.:0.00000   3rd Qu.:0.000000   3rd Qu.:0.000000   3rd Qu.:0.000000  
+##  Max.   :8.00000   Max.   :1.000000   Max.   :1.000000   Max.   :2.000000  
+##      ABRAND          AZEILPL             APLEZIER            AFIETS       
+##  Min.   :0.0000   Min.   :0.0000000   Min.   :0.000000   Min.   :0.00000  
+##  1st Qu.:0.0000   1st Qu.:0.0000000   1st Qu.:0.000000   1st Qu.:0.00000  
+##  Median :1.0000   Median :0.0000000   Median :0.000000   Median :0.00000  
+##  Mean   :0.5701   Mean   :0.0005153   Mean   :0.006012   Mean   :0.03178  
+##  3rd Qu.:1.0000   3rd Qu.:0.0000000   3rd Qu.:0.000000   3rd Qu.:0.00000  
+##  Max.   :7.0000   Max.   :1.0000000   Max.   :2.000000   Max.   :3.00000  
+##     AINBOED            ABYSTAND       Purchase  
+##  Min.   :0.000000   Min.   :0.00000   No :5474  
+##  1st Qu.:0.000000   1st Qu.:0.00000   Yes: 348  
+##  Median :0.000000   Median :0.00000             
+##  Mean   :0.007901   Mean   :0.01426             
+##  3rd Qu.:0.000000   3rd Qu.:0.00000             
+##  Max.   :2.000000   Max.   :2.00000</code></pre>
+<pre class="r"><code># facet the variables against one another &amp; look for trends
+## pairs(Caravan) - don&#39;t bother, too many plots to fit space
+# check for correlations (remove &#39;Direction&#39; var bc it&#39;s qualitative)
+cors &lt;- as.data.frame(cor(Caravan[,-86]))
+# Sort the correlations and see which variables have the strongest correlations: 
+# turn rownames into a variable
+setDT(cors, keep.rownames = &quot;var1&quot;)
+# gather corrs into single column
+cors_tidy &lt;- cors %&gt;% 
+  pivot_longer(c(2:86), names_to = &quot;var2&quot;, values_to = &quot;cors&quot;) %&gt;% 
+  # remove self-correlations
+ filter(cors != 1) %&gt;%
+# sort from highest to lowest
+  arrange(desc(cors))
+# remove even rows (duplicates)
+toDelete &lt;- seq(1, nrow(cors_tidy), 2)
+cors &lt;- cors_tidy[-toDelete, ]
+head(cors, 9)</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##   var1     var2      cors
+##   &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;
+## 1 MOSHOOFD MOSTYPE  0.993
+## 2 AWALAND  PWALAND  0.988
+## 3 AWAPART  PWAPART  0.981
+## 4 AGEZONG  PGEZONG  0.980
+## 5 ABROM    PBROM    0.970
+## 6 ABYSTAND PBYSTAND 0.966
+## 7 AAANHANG PAANHANG 0.966
+## 8 AVRAAUT  PVRAAUT  0.949
+## 9 AWAOREG  PWAOREG  0.948</code></pre>
+<pre class="r"><code>tail(cors, 9)</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##   var1     var2       cors
+##   &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;
+## 1 MINKGEM  MINKM30  -0.646
+## 2 MFALLEEN MGEMOMV  -0.660
+## 3 MFALLEEN MRELGE   -0.684
+## 4 MAUT0    MAUT1    -0.735
+## 5 MGODGE   MGODPR   -0.742
+## 6 MOPLLAAG MOPLMIDD -0.748
+## 7 MRELOV   MRELGE   -0.884
+## 8 MZPART   MZFONDS  -0.999
+## 9 MHKOOP   MHHUUR   -1.00</code></pre>
+<pre class="r"><code># how many people actually purchased a caravan? 
+purchased &lt;- summary(Caravan$Purchase)[[&#39;Yes&#39;]]
+# get the conversion rate
+cvr &lt;- purchased/nrow(Caravan)</code></pre>
+<p>Well that initial exploration shows us that some predictors are HIGHLY correlated. Won’t do anything about that now. Let’s prep the data for KNN, given that the variable ‘Purchase’ is our qualitative outcome.</p>
 </div>
 
 
