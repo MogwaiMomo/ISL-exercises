@@ -258,7 +258,7 @@ str(Caravan)
 summary(Caravan)
 # facet the variables against one another & look for trends
 ## pairs(Caravan) - don't bother, too many plots to fit space
-# check for correlations (remove 'Direction' var bc it's qualitative)
+# check for correlations (remove 'Purchase' var bc it's qualitative)
 cors <- as.data.frame(cor(Caravan[,-86]))
 # Sort the correlations and see which variables have the strongest correlations: 
 # turn rownames into a variable
@@ -280,11 +280,29 @@ purchased <- summary(Caravan$Purchase)[['Yes']]
 # get the conversion rate
 purchased/nrow(Caravan)
 ```
-Well that initial exploration shows us that some predictors are HIGHLY correlated. Won't do anything about that now. Let's prep the data for KNN, given that the variable 'Purchase' is our qualitative outcome. 
+Well that initial exploration shows us that some predictors are HIGHLY correlated, both positively and negatively. Won't do anything about that now. Let's prep the data for KNN, given that the variable 'Purchase' is our qualitative outcome. 
 
 The next step in our KNN analysis is to *standardize* our predictors using the 'scale' function. 
-Because the KNN classifier predicts the class of a given test observation by identifying the observations that are nearest to it, the scale of the variables matters. Any variables that are on a large scale will have a much larger effect on the distance between the observations, and hence on the KNN classifier, than variables that are on a small scale. For instance, imagine a data set that contains two variables, salary and age (measured in dollars and years, respectively). As far as KNN is concerned, a difference of \$1,000 in salary is enormous compared to a difference of 50 years in age. Conse- quently, salary will drive the KNN classification results, and age will have almost no effect. This is contrary to our intuition that a salary difference of \$1,000 is quite small compared to an age difference of 50 years. Furthermore, the importance of scale to the KNN classifier leads to another issue: if we measured salary in Japanese yen, or if we measured age in minutes, then we’d get quite different classification results from what we get if these two variables are measured in dollars and years.
+Because the KNN classifier predicts the class of a given test observation by identifying the observations that are nearest to it, the scale of the variables matters. Any variables that are on a large scale will have a much larger effect on the distance between the observations, and hence on the KNN classifier, than variables that are on a small scale. For instance, imagine a data set that contains two variables, salary and age (measured in dollars and years, respectively). As far as KNN is concerned, a difference of \$1,000 in salary is enormous compared to a difference of 50 years in age. Consequently, salary will drive the KNN classification results, and age will have almost no effect. This is contrary to our intuition that a salary difference of \$1,000 is quite small compared to an age difference of 50 years. Furthermore, the importance of scale to the KNN classifier leads to another issue: if we measured salary in Japanese yen, or if we measured age in minutes, then we’d get quite different classification results from what we get if these two variables are measured in dollars and years.
 A good way to handle this problem is to standardize the data so that all variables are given a mean of zero and a standard deviation of one. Then all variables will be on a comparable scale. The scale() function does just this. In standardizing the data, we exclude column 86, because that is the qualitative Purchase variable.
 ```{r standardize, echo=T}
+# scale the 85 variables using the scale() function
+scaled.Caravan <- as.data.frame(scale(Caravan[,1:85]))
+scaled.Caravan <- cbind(scaled.Caravan, Purchase = Caravan$Purchase)
+```
+Great, the variables are now all standardized. Next step in the process is to split the data into a test set and training set. We'll use the first 1000 observations as the test set and the remainder as the training set:
+```{r create_sets, echo=T}
+test <- 1:1000
+# predictors
+Caravan.X.test <- scaled.Caravan[test,-86]
+Caravan.X.train <- scaled.Caravan[-test,-86]
+# outcomes
+Caravan.Y.test <- scaled.Caravan[test, 86]
+Caravan.Y.train <- scaled.Caravan[-test, 86]
+```
+Done - next step is to run the KNN model, so let's do that now: 
+```{r caravan_knn, echo=T}
+set.seed(1)
+Caravan.knn.pred <- knn(Caravan.X.train, Caravan.X.test, Caravan.Y.train, k = 1)
 
 ```
