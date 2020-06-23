@@ -304,5 +304,20 @@ Done - next step is to run the KNN model, so let's do that now:
 ```{r caravan_knn, echo=T}
 set.seed(1)
 Caravan.knn.pred <- knn(Caravan.X.train, Caravan.X.test, Caravan.Y.train, k = 1)
+# confusion matrix
+conf.matrix <- table(Caravan.knn.pred, Caravan.Y.test)
+# total test error rate
+mean(Caravan.knn.pred != Caravan.Y.test)
+# purchase rate from the test data
+mean(Caravan.Y.test == "Yes")
+```
+Hm, the total test error rate for our model is around 12%. Is that any good? Not really, because the actual purchase rate of our test sample is only about 5.9%, so we could technically get the same result by just saying 'no' by default (essentially random guessing).
 
+What happens if we increase K?
+
+```{r knn_k17, echo=T}
+Caravan.knn.k17 <- knn(Caravan.X.train, Caravan.X.test, Caravan.Y.train, k = 17)
+conf.matrix.k17 <- table(Caravan.knn.k17, Caravan.Y.test)
+# total test error rate
+mean(Caravan.knn.k17 != Caravan.Y.test)
 ```
