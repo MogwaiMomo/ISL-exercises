@@ -1,12 +1,12 @@
 ---
-title: "ISL Chapter 4.6 Lab: <br>Logistic Regression, LDA, QDA, and KNN"
+title: "ISL Chapter 4: Lab & Applied Exercises"
 author: "Momoko Price"
 date: "04/05/2020"
 output: 
   html_document:
     css: ch4.css
 ---
-
+***
 ```{r default_setup, include=FALSE}
 knitr::opts_chunk$set(include = T,
                       echo = F, 
@@ -25,6 +25,26 @@ require(gridExtra)
 require(PerformanceAnalytics)
 require(magrittr)
 require(MASS)
+
+# load custom functions
+get.cors <- function(arg1, arg2) {
+  # check for correlations (remove 'Purchase' var bc it's qualitative)
+  cors <- as.data.frame(cor(arg1[,-arg2]))
+  # Sort the correlations and see which variables have the strongest correlations: 
+  # turn rownames into a variable
+  setDT(cors, keep.rownames = "var1")
+  # gather corrs into single column
+  cors_tidy <- cors %>% 
+    pivot_longer(c(2:arg2), names_to = "var2", values_to = "cors") %>% 
+    # remove self-correlations
+    filter(cors != 1) %>%
+    # sort from highest to lowest
+    arrange(desc(cors))
+  # remove even rows (duplicates)
+  toDelete <- seq(1, nrow(cors_tidy), 2)
+  cors <- cors_tidy[-toDelete, ]
+  return(cors)
+}
 ```
 
 ```{r extras, echo=F}
@@ -38,6 +58,7 @@ require(class) # for KNN modeling
 # load data
 data(Smarket)
 ```
+#### 4.6 Lab: Logistic Regression, LDA, QDA, and KNN
 
 ##### 4.6.1 The Stock Market Data
 We will begin by examining some numerical and graphical summaries of the Smarket data, which is part of the ISLR library. This data set consists of percentage returns for the S&P 500 stock index over 1, 250 days, from the beginning of 2001 until the end of 2005. For each date, we have recorded the percentage returns for each of the five previous trading days, Lag1 through Lag5. We have also recorded Volume (the number of shares traded on the previous day, in billions), Today (the percentage return on the date in question) and Direction (whether the market was Up or Down on this date).
@@ -320,4 +341,24 @@ Caravan.knn.k17 <- knn(Caravan.X.train, Caravan.X.test, Caravan.Y.train, k = 17)
 conf.matrix.k17 <- table(Caravan.knn.k17, Caravan.Y.test)
 # total test error rate
 mean(Caravan.knn.k17 != Caravan.Y.test)
+```
+***
+#### 4.7 Applied Exercises
+10. This question should be answered using the Weekly data set, which is part of the ISLR package. This data is similar in nature to the Smarket data from this chapter’s lab, except that it contains 1,089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
+```{r weekly_data, echo=F}
+# load Weekly data
+data(Weekly)
+```
+```{r explore_weekly, echo=T}
+# check structure
+str(Weekly)
+# check max/min & quantiles of each variable
+summary(Weekly)
+# get top 5 pos. & neg. correlations among the predictors
+head(get.cors(Weekly, 9), 5)
+tail(get.cors(Weekly, 9), 5)
+# generate boxplots to see if there appears to be a difference in predictor mean between 'up' and 'down'
+
+# https://www.r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html#:~:text=A%20grouped%20boxplot%20is%20a,called%20in%20the%20fill%20argument.
+
 ```
