@@ -349,6 +349,7 @@ mean(Caravan.knn.k17 != Caravan.Y.test)
 # load Weekly data
 data(Weekly)
 ```
+(a) Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
 ```{r explore_weekly, echo=T}
 # check structure
 str(Weekly)
@@ -360,5 +361,21 @@ tail(get.cors(Weekly, 9), 5)
 # generate boxplots to see if there appears to be a difference in predictor mean between 'up' and 'down'
 
 # https://www.r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html#:~:text=A%20grouped%20boxplot%20is%20a,called%20in%20the%20fill%20argument.
+
+# pivot data to long form
+weekly.long <- Weekly %>%
+  pivot_longer(-Direction, names_to = "Predictor", values_to = "Value")
+weekly.long <- weekly.long[, c("Predictor", "Direction", "Value")]
+
+# create facet of plots
+boxplot <- ggplot(weekly.long, aes(x=Predictor, y=Value, fill=Direction)) +
+  geom_boxplot() +
+  facet_wrap(~Predictor, scales = "free")
+boxplot
+```
+(b) Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
+```{r log_reg, echo=T}
+weekly.log.fit <- glm(Direction ~ . -Year -Today -Volume, data = Weekly, family = binomial)
+summary(weekly.log.fit)
 
 ```
