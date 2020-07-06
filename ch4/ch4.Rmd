@@ -374,8 +374,36 @@ boxplot <- ggplot(weekly.long, aes(x=Predictor, y=Value, fill=Direction)) +
 boxplot
 ```
 (b) Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
-```{r log_reg, echo=T}
+```{r glm_today, echo=T}
+weekly.log.fit.today <- glm(Direction ~ -Year -Volume, data = Weekly, family = binomial)
+summary(weekly.log.fit.today)
+```
+Note that we did first did a glm fit that includes the 'Today' variable, just to see what's going on with the obvious difference shown in this variable in the box plots. But this model threw an error, ("fitted probabilities numerically 0 or 1 occurred") which indicates that there is a 100% correlation between the predictor and the outcome class. In hindsight, this makes sense, because the Direction class is just a classification that's *based* on the Today predictor.
+
+Other than the wonky Today predictor, there appears to be a significant positive relationship between the Lag2 (the market change two days before), and the outcome:
+
+```{r weekly_glm, echo=T}
 weekly.log.fit <- glm(Direction ~ . -Year -Today -Volume, data = Weekly, family = binomial)
 summary(weekly.log.fit)
-
+```
+(c) Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
+``` {r weekly_test_train_fit, echo=T}
+# set training and test indexes
+# create a vector of logical values that label each obs as either before (T) or during and after (F) 2005
+train <- (Weekly$Year < 2005)
+test <- (Weekly$Year >= 2005)
+# use this to create a subset of training data (pre-2005) and test data (2005 and after)
+Weekly.test <- Weekly[test,]
+Weekly.train <- Weekly[train,]
+# create a single-var vector of test predictions from this data
+Weekly.test.outcomes <- Weekly.test$Direction
+# create a logistical model with the training data
+Weekly.glm.train.fit <- glm(Direction ~ . -Year -Today -Volume, data = Weekly.train, family = binomial)
+summary(Weekly.glm.train.fit)
+```
+Interesting - if we split the data into test and training, the relationship with Lag2 loses significance. Let's run some predictions now with our test data set: 
+``` {r weekly_glm_preds, echo=F}
+# generate new probs
+weekly.test.preds <- predict(Weekly.glm.train.fit, newdata = Weekly.test, type="response")
+# NEXT: create factor based vector of predictions, then do confusion matrix ...
 ```
