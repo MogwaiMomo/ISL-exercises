@@ -404,6 +404,64 @@ summary(Weekly.glm.train.fit)
 Interesting - if we split the data into test and training, the relationship with Lag2 loses significance. Let's run some predictions now with our test data set: 
 ``` {r weekly_glm_preds, echo=F}
 # generate new probs
-weekly.test.preds <- predict(Weekly.glm.train.fit, newdata = Weekly.test, type="response")
-# NEXT: create factor based vector of predictions, then do confusion matrix ...
+weekly.test.probs <- predict(Weekly.glm.train.fit, newdata = Weekly.test, type="response")
+# create factor-based vector of predictions ...
+weekly.test.preds <- rep("Down", length(weekly.test.probs))
+weekly.test.preds[weekly.test.probs > 0.5] <- "Up"
+weekly.test.preds[weekly.test.probs <= 0.5] <- "Down"
+# then do confusion matrix
+table(weekly.test.preds, Weekly.test.outcomes)
+# overall test error rate
+mean(weekly.test.preds != Weekly.test.outcomes)
+# false positive rate [false pos predictions / (false pos + true neg) predictions]
+alpha <- 124/(124+17)
+alpha
+# false negative rate [false neg predictions / (false neg + true pos) predictions]
+power <- 1 - 15/(15+157)  
+power
 ```
+Good lord, these are some terrible test results. Let's try improving it ...
+
+(d) Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
+
+``` {r lag2_2008, echo=T}
+# create a vector of logical values that label each obs as either before (T) or during and after (F) 2005
+train.2008 <- (Weekly$Year <= 2008)
+test.2008 <- (Weekly$Year > 2008)
+# use this to create a subset of training data (pre-2005) and test data (2005 and after)
+Weekly.test.2008 <- Weekly[test.2008,]
+Weekly.train.2008 <- Weekly[train.2008,]
+# create a single-var vector of test predictions from this data
+Weekly.test.2008.outcomes <- Weekly.test.2008$Direction
+# create a logistical model with the training data
+Weekly.glm.train.2008.fit <- glm(Direction ~ Lag2, data = Weekly.train.2008, family = binomial)
+summary(Weekly.glm.train.2008.fit)
+
+# generate new probs
+Weekly.test.2008.probs <- predict(Weekly.glm.train.2008.fit, newdata = Weekly.test.2008, type="response")
+# create factor-based vector of predictions ...
+Weekly.test.2008.preds <- rep("Down", length(Weekly.test.2008.probs))
+Weekly.test.2008.preds[Weekly.test.2008.probs > 0.5] <- "Up"
+Weekly.test.2008.preds[Weekly.test.2008.probs <= 0.5] <- "Down"
+# then do confusion matrix
+conf.matrix <- table(Weekly.test.2008.preds, Weekly.test.2008.outcomes)
+conf.matrix
+# overall test error rate
+mean(Weekly.test.2008.preds != Weekly.test.2008.outcomes)
+# false positive rate [false pos predictions / (false pos + true neg) predictions]
+alpha <- conf.matrix[2,1]/(conf.matrix[1,1]+conf.matrix[2,1])
+alpha
+# false negative rate [false neg predictions / (false neg + true pos) predictions]
+power <- 1 - conf.matrix[1,2]/(conf.matrix[1,2]+conf.matrix[2,2])  
+power
+```
+It appears we reduced the test error rate by quite a bit - mainly by reducing the false positive rate, but it's still very high. It doesn't seem like logistical regression is the way to go for this particular model. We should try some that are less prone to bias.
+
+(e) Repeat (d) using LDA.
+``` {r lag2_2008_lda, echo=T}
+```
+
+(f) Repeat (d) using QDA.
+(g) Repeat (d) using KNN with K = 1.
+(h) Which of these methods appears to provide the best results on
+this data?
