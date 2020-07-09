@@ -459,9 +459,76 @@ It appears we reduced the test error rate by quite a bit - mainly by reducing th
 
 (e) Repeat (d) using LDA.
 ``` {r lag2_2008_lda, echo=T}
+# set training & test index
+train.2008 <- (Weekly$Year <= 2008)
+test.2008 <- (Weekly$Year > 2008)
+
+# create new data for predictions
+weekly.test.2008 <- Weekly[test.2008,]
+
+# create vector of test outcomes for validation
+weekly.lda.test.outcomes <- weekly.test.2008$Direction
+
+# generate lda model of Direction ~ lag2
+weekly.lda.fit <- lda(Direction ~ Lag2, data = Weekly, subset = train.2008)
+weekly.lda.fit
+plot(weekly.lda.fit)
+
+# generate predictions using model
+weekly.lda.fit.preds <- predict(weekly.lda.fit, newdata = Weekly[test.2008,])$class
+
+# general test error rate
+lda.conf.matrix <- table(weekly.lda.fit.preds, weekly.lda.test.outcomes)
+lda.conf.matrix
+mean(weekly.lda.fit.preds != weekly.lda.test.outcomes)
+
 ```
 
 (f) Repeat (d) using QDA.
+
+``` {r lag2_2008_qda, echo=T}
+# create vector of test outcomes for validation
+weekly.qda.test.outcomes <- weekly.test.2008$Direction
+
+# generate lda model of Direction ~ lag2
+weekly.qda.fit <- lda(Direction ~ Lag2, data = Weekly, subset = train.2008)
+summary(weekly.qda.fit)
+plot(weekly.qda.fit)
+
+# generate predictions using model
+weekly.qda.fit.preds <- predict(weekly.qda.fit, newdata = Weekly[test.2008,])$class
+
+# general test error rate
+qda.conf.matrix <- table(weekly.qda.fit.preds, weekly.qda.test.outcomes)
+qda.conf.matrix
+mean(weekly.qda.fit.preds != weekly.qda.test.outcomes)
+
+```
+
 (g) Repeat (d) using KNN with K = 1.
+```{r weekly_knn, echo=T}
+# scale data
+# scale the 85 variables using the scale() function
+scaled.Weekly <- as.data.frame(scale(Weekly[,1:8]))
+scaled.Weekly <- cbind(scaled.Weekly, Direction = Weekly$Direction)
+
+# predictors
+Weekly.X.test <- scaled.Weekly[test.2008,-9]
+Weekly.X.train <- scaled.Weekly[train.2008,-9]
+# outcomes
+Weekly.Y.test <- scaled.Weekly[test.2008, 9]
+Weekly.Y.train <- scaled.Weekly[train.2008, 9]
+
+set.seed(1)
+Weekly.knn.pred <- knn(Weekly.X.train, Weekly.X.test, Weekly.Y.train, k = 1)
+# confusion matrix
+knn.conf.matrix <- table(Weekly.knn.pred, Weekly.Y.test)
+knn.conf.matrix
+# total test error rate
+mean(Weekly.knn.pred != Weekly.Y.test)
+
+```
 (h) Which of these methods appears to provide the best results on
 this data?
+
+KNN with K=1 is clearly the best of al the models we tested so far. 
