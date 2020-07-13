@@ -73,7 +73,6 @@ pairs(Smarket)
 cor(Smarket[,-9])
 
 ```
-
 ``` {r save_plots1, include=F}
 # save larger version of plots to images folder
 png(filename="images/check_data_pairs.png", width = 1900, height = 1024)
@@ -428,7 +427,7 @@ Good lord, these are some terrible test results. Let's try improving it ...
 # create a vector of logical values that label each obs as either before (T) or during and after (F) 2005
 train.2008 <- (Weekly$Year <= 2008)
 test.2008 <- (Weekly$Year > 2008)
-# use this to create a subset of training data (pre-2005) and test data (2005 and after)
+# use this to create a subset of training data and test data
 Weekly.test.2008 <- Weekly[test.2008,]
 Weekly.train.2008 <- Weekly[train.2008,]
 # create a single-var vector of test predictions from this data
@@ -485,7 +484,6 @@ mean(weekly.lda.fit.preds != weekly.lda.test.outcomes)
 ```
 
 (f) Repeat (d) using QDA.
-
 ``` {r lag2_2008_qda, echo=T}
 # create vector of test outcomes for validation
 weekly.qda.test.outcomes <- weekly.test.2008$Direction
@@ -520,7 +518,7 @@ Weekly.Y.test <- scaled.Weekly[test.2008, 9]
 Weekly.Y.train <- scaled.Weekly[train.2008, 9]
 
 set.seed(1)
-Weekly.knn.pred <- knn(Weekly.X.train, Weekly.X.test, Weekly.Y.train, k = 1)
+Weekly.knn.pred <- knn(Weekly.X.train, Weekly.X.test, Weekly.Y.train, k = 11)
 # confusion matrix
 knn.conf.matrix <- table(Weekly.knn.pred, Weekly.Y.test)
 knn.conf.matrix
@@ -528,7 +526,25 @@ knn.conf.matrix
 mean(Weekly.knn.pred != Weekly.Y.test)
 
 ```
-(h) Which of these methods appears to provide the best results on
-this data?
+(h) Which of these methods appears to provide the best results on this data?
 
-KNN with K=1 is clearly the best of al the models we tested so far. 
+KNN with K=1 is clearly the best of all the models we tested so far. Note that in the "unofficial solutions" they didn't scale the data so their results weren't as good for KNN. 
+
+Tried increasing K, and it turns out that we can get the test error rate as low as 0.0865.
+
+11. In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the Auto data set.
+
+(a) Create a binary variable, mpg01, that contains a 1 if mpg contains a value above its median, and a 0 if mpg contains a value below its median. You can compute the median using the median() function. Note you may find it helpful to use the data.frame() function to create a single data set containing both mpg01 and the other Auto variables.
+
+```{r auto_data, echo=T}
+data(Auto)
+str(Auto)
+auto_cors <- get.cors(Auto, 9)
+
+# create a binary variable for mpg above median = 1, and below median = 0. 
+mpg_median <- median(Auto$mpg)
+Auto <- Auto %>%
+  mutate(mpg01 = if_else(mpg < mpg_median, 0, 1))
+
+Auto$mpg01 <- as.factor(Auto$mpg01)
+```
