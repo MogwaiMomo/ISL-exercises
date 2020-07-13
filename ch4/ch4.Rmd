@@ -531,4 +531,4 @@ mean(Weekly.knn.pred != Weekly.Y.test)
 (h) Which of these methods appears to provide the best results on
 this data?
 
-KNN with K=1 is clearly the best of al the models we tested so far. 
+KNN with K=1 is clearly the best of all the models we tested so far. 
