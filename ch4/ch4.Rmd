@@ -548,3 +548,23 @@ Auto <- Auto %>%
 
 Auto$mpg01 <- as.factor(Auto$mpg01)
 ```
+(b) Explore the data graphically in order to investigate the association between mpg01 and the other features. Which of the other features seem most likely to be useful in predicting mpg01? Scatterplots and boxplots may be useful tools to answer this question. Describe your findings.
+```{r explore_auto, echo=T}
+# first step in exploring - let's look at whether there are any obvious distinctions in single features depending on if the mileage is high (mpg01 = 1) or low (mpg01= 0):
+
+# reference: https://www.r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html#:~:text=A%20grouped%20boxplot%20is%20a,called%20in%20the%20fill%20argument.
+
+df <- Auto
+
+# pivot data to long form
+df.long <- df %>%
+  pivot_longer(-c(mpg01, name, mpg), names_to = "Predictor", values_to = "Value")
+df.long <- df.long[, c("Predictor", "mpg01", "Value")] # reorder columns
+
+# create facet of plots
+boxplot <- ggplot(df.long, aes(x=Predictor, y=Value, fill=mpg01)) +
+  geom_boxplot() +
+  facet_wrap(~Predictor, scales = "free")
+boxplot
+
+```
