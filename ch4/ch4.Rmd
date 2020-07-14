@@ -554,17 +554,41 @@ Auto$mpg01 <- as.factor(Auto$mpg01)
 
 # reference: https://www.r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html#:~:text=A%20grouped%20boxplot%20is%20a,called%20in%20the%20fill%20argument.
 
-df <- Auto
-
-# pivot data to long form
+create.boxplot.facet <- function(df, outcome.var) {
+ # pivot data to long form
 df.long <- df %>%
-  pivot_longer(-c(mpg01, name, mpg), names_to = "Predictor", values_to = "Value")
-df.long <- df.long[, c("Predictor", "mpg01", "Value")] # reorder columns
+  pivot_longer(-c(name, mpg, outcome.var), names_to = "Predictor", values_to = "Value")
+df.long <- df.long[, c("Predictor", outcome.var, "Value")] # reorder columns
 
 # create facet of plots
-boxplot <- ggplot(df.long, aes(x=Predictor, y=Value, fill=mpg01)) +
+boxplot <- ggplot(df.long, aes_string(x="Predictor", y="Value", fill=outcome.var)) +
   geom_boxplot() +
-  facet_wrap(~Predictor, scales = "free")
-boxplot
+  facet_wrap(~Predictor, scales = "free") 
+}
+
+test.df <- Auto
+test.vars <- "mpg01"
+
+class.boxplot <- create.boxplot.facet(test.df, test.vars)
+class.boxplot
+
+```
+Hm, there apperas to be strong positive and negative associations with having high vs. low mileage. Acceleration, year, and origin appear to have notable positive relationships, whereas cylinder, displacement, horsepower, and weight have negative relationships. Let's explore this further using classification models (log regression, LDA, QDA, and KNN) ... But first: 
+
+(c) Split the data into a training set and a test set.
+```{r auto_test_training, echo=T}
+# create a vector of logical values that assigns odd numbers to training and even numbers to test
+train.even <- ((as.numeric(rownames(Auto)) %% 2) == 0)
+test.odd <- ((as.numeric(rownames(Auto)) %% 2) != 0)
+
+# use this to create a subset of training data and test data
+Auto.train <- Auto[train.even,]
+Auto.test <- Auto[test.odd,]
+
+# create a single-var vector of test predictions from this data
+Auto.test.outcomes <- Auto.test$mpg01
+```
+Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r auto_lda, echo=T}
 
 ```
