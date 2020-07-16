@@ -588,7 +588,84 @@ Auto.test <- Auto[test.odd,]
 # create a single-var vector of test predictions from this data
 Auto.test.outcomes <- Auto.test$mpg01
 ```
-Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+(d) Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
 ```{r auto_lda, echo=T}
-
+Auto.lda.fit <- lda(mpg01 ~ . - name - origin - cylinders, data = Auto.train)
+Auto.lda.preds <- predict(Auto.lda.fit, Auto.test)$class
+# conf matrix
+Auto.lda.conf.matrix <- table(Auto.lda.preds, Auto.test.outcomes)
+Auto.lda.conf.matrix
+# false pos rate
+Auto.lda.f.pos <- Auto.lda.conf.matrix[2,1]/(Auto.lda.conf.matrix[1,1] + Auto.lda.conf.matrix[2,1])
+# false neg rate & power
+Auto.lda.f.neg <- Auto.lda.conf.matrix[1,2]/(Auto.lda.conf.matrix[1,2] + Auto.lda.conf.matrix[2,2])
+Auto.lda.power <- 1 - f.neg
+# overall test error rate
+mean(Auto.lda.preds != Auto.test.outcomes)
 ```
+Wow, this is a pretty great model! Test error rate is way better than other exercises we've done so far, and removing some of the weirdly distributed predictors (like origin, and cylinders) improved it even more. Could we get an even better result with a different model? Let's try QDA ...
+
+(e) Perform QDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r auto_qda, echo=T}
+Auto.qda.fit <- qda(mpg01 ~ . - name, data = Auto.train)
+Auto.qda.preds <- predict(Auto.qda.fit, Auto.test)$class
+# conf matrix
+Auto.qda.conf.matrix <- table(Auto.qda.preds, Auto.test.outcomes)
+Auto.qda.conf.matrix
+# false pos rate
+Auto.qda.f.pos <- Auto.qda.conf.matrix[2,1]/(Auto.qda.conf.matrix[1,1] + Auto.qda.conf.matrix[2,1])
+# false neg rate & power
+Auto.qda.f.neg <- Auto.qda.conf.matrix[1,2]/(Auto.qda.conf.matrix[1,2] + Auto.qda.conf.matrix[2,2])
+Auto.qda.power <- 1 - f.neg
+# overall test error rate
+mean(Auto.qda.preds != Auto.test.outcomes)
+```
+Strange - removing origin and cylinders from the qda model didn't improve things at all. It actually made things worse. Let's keep going - logistical regression next!
+
+(f) Perform logistic regression on the training data in order to pre- dict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+
+```{r auto_logis, echo=T}
+Auto.train.log <- Auto.train[,-9]
+Auto.log.fit <- glm(mpg01 ~ . - mpg, family=binomial, data = Auto.train.log)
+Auto.log.probs <- predict(Auto.log.fit, Auto.test, type="response")
+Auto.log.preds <- rep("0",length(Auto.log.probs))
+Auto.log.preds[Auto.log.probs > 0.5] <- "1"
+Auto.log.preds[Auto.log.probs <= 0.5] <- "0"
+# conf matrix
+Auto.log.conf.matrix <- table(Auto.log.preds, Auto.test.outcomes)
+Auto.log.conf.matrix
+# false pos rate
+Auto.log.f.pos <- Auto.log.conf.matrix[2,1]/(Auto.log.conf.matrix[1,1] + Auto.log.conf.matrix[2,1])
+# false neg rate & power
+Auto.log.f.neg <- Auto.log.conf.matrix[1,2]/(Auto.log.conf.matrix[1,2] + Auto.log.conf.matrix[2,2])
+Auto.log.power <- 1 - f.neg
+# overall test error rate
+mean(Auto.log.preds != Auto.test.outcomes)
+```
+Worse model yet. Finally, let's try KNN ...
+
+(g) Perform KNN on the training data, with several values of K, in order to predict mpg01. Use only the variables that seemed most associated with mpg01 in (b). What test errors do you obtain? Which value of K seems to perform the best on this data set?
+
+```{r auto_knn, echo=T}
+Auto.train.knn.x <- Auto.train[,-c(1,9,10)]
+Auto.test.knn.x <- Auto.test[,-c(1,9,10)]
+Auto.train.knn.y <- Auto.train$mpg01
+Auto.test.knn.y <- Auto.test$mpg01
+
+set.seed(1)
+Auto.knn.preds <- knn(Auto.train.knn.x, Auto.test.knn.x, cl=Auto.train.knn.y, k=6)
+# conf matrix
+Auto.knn.conf.matrix <- table(Auto.knn.preds, Auto.test.knn.y)
+Auto.knn.conf.matrix
+# false pos rate
+Auto.knn.f.pos <- Auto.knn.conf.matrix[2,1]/(Auto.knn.conf.matrix[1,1] + Auto.knn.conf.matrix[2,1])
+# false neg rate & power
+Auto.knn.f.neg <- Auto.knn.conf.matrix[1,2]/(Auto.knn.conf.matrix[1,2] + Auto.knn.conf.matrix[2,2])
+Auto.knn.power <- 1 - f.neg
+# overall test error rate
+mean(Auto.knn.preds != Auto.test.knn.y)
+```
+KNN sucks for this. Clearly. Best option was LDA.
+
+
+12. This problem involves writing functions.
