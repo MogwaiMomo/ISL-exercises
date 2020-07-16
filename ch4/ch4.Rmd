@@ -573,7 +573,7 @@ class.boxplot <- create.boxplot.facet(test.df, test.vars)
 class.boxplot
 
 ```
-Hm, there apperas to be strong positive and negative associations with having high vs. low mileage. Acceleration, year, and origin appear to have notable positive relationships, whereas cylinder, displacement, horsepower, and weight have negative relationships. Let's explore this further using classification models (log regression, LDA, QDA, and KNN) ... But first: 
+Hm, there appears to be strong positive and negative associations with having high vs. low mileage. Acceleration, year, and origin appear to have notable positive relationships, whereas cylinder, displacement, horsepower, and weight have negative relationships. Let's explore this further using classification models (log regression, LDA, QDA, and KNN) ... But first: 
 
 (c) Split the data into a training set and a test set.
 ```{r auto_test_training, echo=T}
