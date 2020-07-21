@@ -554,10 +554,17 @@ Auto$mpg01 <- as.factor(Auto$mpg01)
 
 # reference: https://www.r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html#:~:text=A%20grouped%20boxplot%20is%20a,called%20in%20the%20fill%20argument.
 
-create.boxplot.facet <- function(df, outcome.var) {
+create.boxplot.facet <- function(df, outcome.var, omit.var) {
+  
+if(missing(omit.var)) {
+  remove.vars <- outcome.var
+} else {
+  remove.vars <- c(outcome.var, omit.var)
+}
+  
  # pivot data to long form
 df.long <- df %>%
-  pivot_longer(-c(name, mpg, outcome.var), names_to = "Predictor", values_to = "Value")
+  pivot_longer(-c(remove.vars), names_to = "Predictor", values_to = "Value")
 df.long <- df.long[, c("Predictor", outcome.var, "Value")] # reorder columns
 
 # create facet of plots
@@ -568,15 +575,16 @@ boxplot <- ggplot(df.long, aes_string(x="Predictor", y="Value", fill=outcome.var
 
 test.df <- Auto
 test.vars <- "mpg01"
+omit.vars <- c("name", "mpg")
 
-class.boxplot <- create.boxplot.facet(test.df, test.vars)
+class.boxplot <- create.boxplot.facet(test.df, test.vars, omit.vars)
 class.boxplot
-
 ```
 Hm, there appears to be strong positive and negative associations with having high vs. low mileage. Acceleration, year, and origin appear to have notable positive relationships, whereas cylinder, displacement, horsepower, and weight have negative relationships. Let's explore this further using classification models (log regression, LDA, QDA, and KNN) ... But first: 
 
 (c) Split the data into a training set and a test set.
 ```{r auto_test_training, echo=T}
+
 # create a vector of logical values that assigns odd numbers to training and even numbers to test
 train.even <- ((as.numeric(rownames(Auto)) %% 2) == 0)
 test.odd <- ((as.numeric(rownames(Auto)) %% 2) != 0)
@@ -587,6 +595,8 @@ Auto.test <- Auto[test.odd,]
 
 # create a single-var vector of test predictions from this data
 Auto.test.outcomes <- Auto.test$mpg01
+
+
 ```
 (d) Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
 ```{r auto_lda, echo=T}
@@ -647,13 +657,19 @@ Worse model yet. Finally, let's try KNN ...
 (g) Perform KNN on the training data, with several values of K, in order to predict mpg01. Use only the variables that seemed most associated with mpg01 in (b). What test errors do you obtain? Which value of K seems to perform the best on this data set?
 
 ```{r auto_knn, echo=T}
+
 Auto.train.knn.x <- Auto.train[,-c(1,9,10)]
 Auto.test.knn.x <- Auto.test[,-c(1,9,10)]
+
+# scale the predictors using the scale() function
+Auto.train.knn.x.scaled <- as.data.frame(scale(Auto.train.knn.x[,-c(1,9,10)]))
+Auto.test.knn.x.scaled <- as.data.frame(scale(Auto.test.knn.x[,-c(1,9,10)]))
+
 Auto.train.knn.y <- Auto.train$mpg01
 Auto.test.knn.y <- Auto.test$mpg01
 
 set.seed(1)
-Auto.knn.preds <- knn(Auto.train.knn.x, Auto.test.knn.x, cl=Auto.train.knn.y, k=6)
+Auto.knn.preds <- knn(Auto.train.knn.x.scaled, Auto.test.knn.x.scaled, cl=Auto.train.knn.y, k=1)
 # conf matrix
 Auto.knn.conf.matrix <- table(Auto.knn.preds, Auto.test.knn.y)
 Auto.knn.conf.matrix
@@ -665,7 +681,116 @@ Auto.knn.power <- 1 - f.neg
 # overall test error rate
 mean(Auto.knn.preds != Auto.test.knn.y)
 ```
-KNN sucks for this. Clearly. Best option was LDA.
+KNN sucks for this, even if you increase K. Most likely because the sample size of the training data is too low.  Best option was LDA.
+
+12. This problem involves writing functions. (a) Write a function, Power(), that prints out the result of raising 2 to the 3rd power. In other words, your function should compute 23 and print out the results.
+
+Hint: Recall that x^a raises x to the power a. Use the print() function to output the result.
+
+```{r power, echo=T}
+Power <- function() {
+  ans <- 2^3
+  print(ans)
+}
+
+Power()
+```
+
+(b) Create a new function, Power2(), that allows you to pass any two numbers, x and a, and prints out the value of x^a. 
+
+```{r power2, echo=T}
+Power2 <- function(x,y) {
+  ans <- x^y
+  print(ans)
+}
+
+Power2(3,8)
+```
+skip (c), too basic. 
+
+(d) Now create a new function, Power3(), that actually returns the result x^a as an R object.
+```{r power3, echo=T}
+Power3 <- function(x,y) {
+  ans <- x^y
+  return(ans)
+}
+
+answer <- Power3(3,8)
+```
+(e) Now using the Power3() function, create a plot of f(x) = x^2. The x-axis should display a range of integers from 1 to 10, and the y-axis should display x.
+```{r plot_x2, echo=T}
+power.x = seq(from = 1, to = 10, by = 1)
+power.y = Power3(power.x, 2)
+
+plot(power.x, log(power.y))
+```
+(f) Create a function, PlotPower(), that allows you to create a plot of x against x^a for a fixed a and for a range of values of x.
+```{r plotpower, echo=T}
+
+PlotPower <- function(arg1, arg2) {
+  power.x = arg1
+  power.y = Power3(power.x, arg2)
+  plot(power.x, log(power.y))
+}
+PlotPower(1:100, 2)
+```
+13. Using the Boston data set, fit classification models in order to predict whether a given suburb has a crime rate above or below the median. Explore logistic regression, LDA, and KNN models using various sub- sets of the predictors. Describe your findings.
+
+```{r boston_crime, echo=T}
+# check data structure
+data(Boston)
+
+str(Boston)
+
+# change class of var 'chas' from int to class
+Boston$chas <- as.factor(Boston$chas)
+
+# change class of var '
+Boston$rad <- as.numeric(Boston$rad)
+
+# check again
+str(Boston)
+
+# create dummy var for crime level ("high", "low") depending on rate relative to median
+
+Boston <- Boston %>%
+  mutate(crime_class = ifelse(crim <= median(crim), "high", "low"))
+
+Boston$crime_class <- as.factor(Boston$crime_class)
+
+# check again
+str(Boston)
+
+# explore other variables' relationship to crime level
+# check num vars split across crime rate
+Boston.boxplots.crime <- create.boxplot.facet(Boston, "crime_class", c("chas", "crim"))
+Boston.boxplots.crime
+# check num vars split across chas var
+Boston.boxplots.chas <- create.boxplot.facet(Boston, "chas", "crime_class")
+Boston.boxplots.chas
+
+# create a formula for setting up training and test data
+create.train.test.sets <- function(df) {
+# create a vector of logical values that assigns odd numbers to training and even numbers to test
+  train.even <- ((as.numeric(rownames(df)) %% 2) == 0)
+  test.odd <- ((as.numeric(rownames(df)) %% 2) != 0)
+
+  # use this to create a subset of training data and test data
+  df.train <- df[train.even,]
+  df.test <- df[test.odd,]
+
+  train.test.sets <- list(
+    train = df.train,
+    test = df.test
+  )
+  return(train.test.sets)
+}
+
+train.test.list <- create.train.test.sets(Boston)
+
+#create a single-var vector of test predictions from this data
+test.outcomes <- train.test.list[["test"]]$crime_class
 
 
-12. This problem involves writing functions.
+# run log, LDA, QDA and KNN models and choose the best one based on test error rate
+```
