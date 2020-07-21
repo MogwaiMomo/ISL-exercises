@@ -736,7 +736,7 @@ PlotPower(1:100, 2)
 ```
 13. Using the Boston data set, fit classification models in order to predict whether a given suburb has a crime rate above or below the median. Explore logistic regression, LDA, and KNN models using various sub- sets of the predictors. Describe your findings.
 
-```{r boston_crime, echo=T}
+```{r boston_crime_1, echo=T}
 # check data structure
 data(Boston)
 
@@ -790,7 +790,55 @@ train.test.list <- create.train.test.sets(Boston)
 
 #create a single-var vector of test predictions from this data
 test.outcomes <- train.test.list[["test"]]$crime_class
+```
+
+```{r boston_crime_2, echo=T}
+# create a classification model function where you can run analysis based on choice
+run.classification.model <- function(data, omit.vars){
+  
+  writeLines(
+    c("Which classification model do you want to run?",
+      "1. Logistical regression",
+      "2. LDA",
+      "3. QDA",
+      "4. KNN"
+      ))
+  
+  model.choice <- readline(prompt="Please input the number of your choice: ")
+  
+  if (model.choice == "1") {
+  # run logistical regression
+
+    
+    
+  } else if (model.choice == "2") {
+    # run LDA
+    
+    
+  } else if (model.choice == "3") {
+    # run QDA
+    
+  
+  } else if (model.choice == "4") {
+    # run KNN  
+    
+  }
+  
 
 
-# run log, LDA, QDA and KNN models and choose the best one based on test error rate
+
+
+  
+}
+
+data <- Boston
+omit.vars <- c("chas", "crim")
+
+run.classification.model(data, omit.vars)
+```
+
+
+
+
+
 ```
