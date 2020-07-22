@@ -754,7 +754,7 @@ str(Boston)
 # create dummy var for crime level ("high", "low") depending on rate relative to median
 
 Boston <- Boston %>%
-  mutate(crime_class = ifelse(crim <= median(crim), "high", "low"))
+  mutate(crime_class = ifelse(crim >= median(crim), "high", "low"))
 
 Boston$crime_class <- as.factor(Boston$crime_class)
 
@@ -794,7 +794,18 @@ test.outcomes <- train.test.list[["test"]]$crime_class
 
 ```{r boston_crime_2, echo=T}
 # create a classification model function where you can run analysis based on choice
-run.classification.model <- function(data, omit.vars){
+run.classification.model <- function(train.test.list){
+  
+  # if(missing(omit.vars)) {
+  #   remove.vars <- outcome.var
+  # } else {
+  #   remove.vars <- c(outcome.var, omit.vars)
+  # }
+  
+  # set data to model and test with
+  train.df <- train.test.list[["train"]]
+  test.df <- train.test.list[["test"]]
+  test.outcomes <-  train.test.list[["test"]]$crime_class
   
   writeLines(
     c("Which classification model do you want to run?",
@@ -807,21 +818,40 @@ run.classification.model <- function(data, omit.vars){
   model.choice <- readline(prompt="Please input the number of your choice: ")
   
   if (model.choice == "1") {
-  # run logistical regression
+    # run logistical regression
+    model.fit <- glm(crime_class ~ . - crim - chas, data = train.df, family=binomial)
+    summary(model.fit)
+    # model.fit.probs <- predict(model.fit, newdata = test.outcomes, type ="response")
+    # model.fit.preds <- rep("low", length(model.fit.probs))
+    # model.fit.preds[model.fit.probs > 0.5] = "high"
+    # model.fit.preds
 
-    
-    
   } else if (model.choice == "2") {
     # run LDA
-    
-    
+      model.fit <- lda(crime_class ~ . - crim - chas, data = train.df)
+      model.fit.preds <- predict(model.fit, newdata = test.outcomes)$class
+      model.fit.preds
+      
   } else if (model.choice == "3") {
     # run QDA
-    
-  
+      model.fit <- qda(crime_class ~ . - crim - chas, data = train.df)
+      model.fit.preds <- predict(model.fit, newdata = test.outcomes)$class
+      model.fit.preds
+      
   } else if (model.choice == "4") {
-    # run KNN  
+    # run KNN
     
+    # set predictors - !!!NEED TO SCALE !!!
+    X.train <- train.df[, -c(chas, crim, crime_class)]
+    X.test <- test.df[, -c(chas, crim, crime_class)]
+    
+    # set outcomes
+    Y.train <- train.df$crime_class
+    Y.test <- train.df$crime_class
+  
+    set.seed(1)
+    model.fit <- knn(X.train, X.test, Y.train, k = 1)
+    model.fit
   }
   
 
@@ -831,10 +861,11 @@ run.classification.model <- function(data, omit.vars){
   
 }
 
-data <- Boston
-omit.vars <- c("chas", "crim")
+# df <- Boston
+# outcome.var <- "crime_class"
+# omit.vars <- c("chas", "crim")
 
-run.classification.model(data, omit.vars)
+run.classification.model(train.test.list)
 ```
 
 
