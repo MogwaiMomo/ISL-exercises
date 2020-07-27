@@ -795,17 +795,13 @@ test.outcomes <- train.test.list[["test"]]$crime_class
 ```{r boston_crime_2, echo=T}
 # create a classification model function where you can run analysis based on choice
 run.classification.model <- function(train.test.list){
-  
-  # if(missing(omit.vars)) {
-  #   remove.vars <- outcome.var
-  # } else {
-  #   remove.vars <- c(outcome.var, omit.vars)
-  # }
-  
+
   # set data to model and test with
-  train.df <- train.test.list[["train"]]
-  test.df <- train.test.list[["test"]]
-  test.outcomes <-  train.test.list[["test"]]$crime_class
+  boston.train.df <- train.test.list[["train"]] %>%
+    dplyr::select(-c(crim, chas))
+  boston.test.df <- train.test.list[["test"]] %>%
+    dplyr::select(-c(crim, chas))
+  boston.test.outcomes <-  train.test.list[["test"]]$crime_class
   
   writeLines(
     c("Which classification model do you want to run?",
@@ -815,55 +811,60 @@ run.classification.model <- function(train.test.list){
       "4. KNN"
       ))
   
-  model.choice <- readline(prompt="Please input the number of your choice: ")
+  model.choice <- readline(prompt="Please input the number of your choice: \n")
   
   if (model.choice == "1") {
     # run logistical regression
-    model.fit <- glm(crime_class ~ . - crim - chas, data = train.df, family=binomial)
-    summary(model.fit)
-    # model.fit.probs <- predict(model.fit, newdata = test.outcomes, type ="response")
-    # model.fit.preds <- rep("low", length(model.fit.probs))
-    # model.fit.preds[model.fit.probs > 0.5] = "high"
-    # model.fit.preds
+    model.fit <- glm(crime_class ~ . -rad -zn, data = boston.train.df, family=binomial)
+    model.fit.probs <- predict(model.fit, newdata = boston.test.df, type ="response")
+    model.fit.preds <- rep("high", length(model.fit.probs))
+    model.fit.preds[model.fit.probs > 0.5] = "low"
+    model.fit.preds
+
 
   } else if (model.choice == "2") {
     # run LDA
-      model.fit <- lda(crime_class ~ . - crim - chas, data = train.df)
-      model.fit.preds <- predict(model.fit, newdata = test.outcomes)$class
+      model.fit <- lda(crime_class ~ . -rad -zn, data = boston.train.df)
+      model.fit.preds <- predict(model.fit, newdata = boston.test.df)$class
       model.fit.preds
       
   } else if (model.choice == "3") {
     # run QDA
-      model.fit <- qda(crime_class ~ . - crim - chas, data = train.df)
-      model.fit.preds <- predict(model.fit, newdata = test.outcomes)$class
+      model.fit <- qda(crime_class ~ . -rad -zn, data = boston.train.df)
+      model.fit.preds <- predict(model.fit, newdata = boston.test.df)$class
       model.fit.preds
       
   } else if (model.choice == "4") {
     # run KNN
     
-    # set predictors - !!!NEED TO SCALE !!!
-    X.train <- train.df[, -c(chas, crim, crime_class)]
-    X.test <- test.df[, -c(chas, crim, crime_class)]
+    # set predictors
+    X.train <- boston.train.df %>%
+      dplyr::select(-c(crime_class, rad, zn, black, lstat, rm))
+    X.test <- boston.test.df %>%
+      dplyr::select(-c(crime_class, rad, zn, black, lstat, rm))
+
+    # scale predictors
+    X.train <- scale(X.train)
+    X.test <- scale(X.test)
     
     # set outcomes
-    Y.train <- train.df$crime_class
-    Y.test <- train.df$crime_class
+    Y.train <- boston.train.df$crime_class
+    Y.test <- boston.test.df$crime_class
   
     set.seed(1)
-    model.fit <- knn(X.train, X.test, Y.train, k = 1)
-    model.fit
+    
+    k_neighbours <- readline(prompt="How many neighbours (k) should we use? \n")
+    k_neighbours <- as.numeric(k_neighbours)
+    model.fit.preds <- knn(X.train, X.test, Y.train, k = k_neighbours)
+    model.fit.preds
   }
   
-
-
-
-
+    #set confusion matrix to get test error rate
+    conf.matrix <- table(model.fit.preds, boston.test.outcomes)
+    mean(model.fit.preds != boston.test.outcomes)
   
 }
 
-# df <- Boston
-# outcome.var <- "crime_class"
-# omit.vars <- c("chas", "crim")
 
 run.classification.model(train.test.list)
 ```
