@@ -609,7 +609,7 @@ Auto.lda.conf.matrix
 Auto.lda.f.pos <- Auto.lda.conf.matrix[2,1]/(Auto.lda.conf.matrix[1,1] + Auto.lda.conf.matrix[2,1])
 # false neg rate & power
 Auto.lda.f.neg <- Auto.lda.conf.matrix[1,2]/(Auto.lda.conf.matrix[1,2] + Auto.lda.conf.matrix[2,2])
-Auto.lda.power <- 1 - f.neg
+Auto.lda.power <- 1 - Auto.lda.f.neg
 # overall test error rate
 mean(Auto.lda.preds != Auto.test.outcomes)
 ```
@@ -626,7 +626,7 @@ Auto.qda.conf.matrix
 Auto.qda.f.pos <- Auto.qda.conf.matrix[2,1]/(Auto.qda.conf.matrix[1,1] + Auto.qda.conf.matrix[2,1])
 # false neg rate & power
 Auto.qda.f.neg <- Auto.qda.conf.matrix[1,2]/(Auto.qda.conf.matrix[1,2] + Auto.qda.conf.matrix[2,2])
-Auto.qda.power <- 1 - f.neg
+Auto.qda.power <- 1 - Auto.qda.f.neg
 # overall test error rate
 mean(Auto.qda.preds != Auto.test.outcomes)
 ```
@@ -648,7 +648,7 @@ Auto.log.conf.matrix
 Auto.log.f.pos <- Auto.log.conf.matrix[2,1]/(Auto.log.conf.matrix[1,1] + Auto.log.conf.matrix[2,1])
 # false neg rate & power
 Auto.log.f.neg <- Auto.log.conf.matrix[1,2]/(Auto.log.conf.matrix[1,2] + Auto.log.conf.matrix[2,2])
-Auto.log.power <- 1 - f.neg
+Auto.log.power <- 1 - Auto.log.f.neg
 # overall test error rate
 mean(Auto.log.preds != Auto.test.outcomes)
 ```
@@ -677,7 +677,7 @@ Auto.knn.conf.matrix
 Auto.knn.f.pos <- Auto.knn.conf.matrix[2,1]/(Auto.knn.conf.matrix[1,1] + Auto.knn.conf.matrix[2,1])
 # false neg rate & power
 Auto.knn.f.neg <- Auto.knn.conf.matrix[1,2]/(Auto.knn.conf.matrix[1,2] + Auto.knn.conf.matrix[2,2])
-Auto.knn.power <- 1 - f.neg
+Auto.knn.power <- 1 - Auto.knn.f.neg
 # overall test error rate
 mean(Auto.knn.preds != Auto.test.knn.y)
 ```
@@ -867,10 +867,4 @@ run.classification.model <- function(train.test.list){
 
 
 run.classification.model(train.test.list)
-```
-
-
-
-
-
 ```

@@ -7,8 +7,10 @@ output:
     css: report.css
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, 
+***
+```{r default_setup, include=FALSE}
+knitr::opts_chunk$set(include = T,
+                      echo = F, 
                       message = F, 
                       warning = F,
                       fig.align = 'left',
@@ -20,9 +22,9 @@ options(stringsAsFactors = F)
 require(tidyverse)
 require(data.table)
 require(ggplot2)
-require(ISLR)
-require(MASS)
 require(gridExtra)
 require(PerformanceAnalytics)
+require(magrittr)
+require(MASS)
 ```
 
