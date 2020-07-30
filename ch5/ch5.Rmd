@@ -26,6 +26,7 @@ require(gridExtra)
 require(PerformanceAnalytics)
 require(magrittr)
 require(MASS)
+require(ISLR)
 ```
 
 ```{r custom_functions, include=FALSE}
@@ -162,3 +163,42 @@ run.classification.model <- function(train.test.list){
 #### 5.3 Lab: Cross-Validation and the Bootstrap
 
 In this lab, we explore the resampling techniques covered in this chapter. Some of the commands in this lab may take a while to run on your computer.
+
+```{r validation_method, echo=F}
+# load data
+data(Auto)
+# set seed for repeatable results
+set.seed(1)
+# set training & test data subset
+train <- sample(392, 196) # total object length, first 196 obs
+train.df <- Auto[train,]
+test.df <- Auto[-train,]
+test.outcomes <- Auto[-train,]$mpg
+
+
+# linear regression fit
+lm.fit <- lm(mpg ~ horsepower, data=train.df)
+# generate predictions with test data (using -train)
+lm.preds <- predict(lm.fit, test.df)
+# calculate the MSE (mean squared error) of our predictions vs. the actual test outcomes
+lm.squared.test.error <- (test.outcomes - lm.preds)^2
+lm.fit.mse <- mean(lm.squared.test.error)
+
+
+# quadratic & cubic regression fit
+qd.fit <- lm(mpg ~ poly(horsepower,2), data=train.df)
+cb.fit <- lm(mpg ~ poly(horsepower,3), data=train.df)
+# generate predictions with test data (using -train)
+qd.preds <- predict(qd.fit, test.df)
+cb.preds <- predict(cb.fit, test.df)
+# calculate the MSE (mean squared error) of our predictions vs. the actual test outcomes
+qd.squared.test.error <- (test.outcomes - qd.preds)^2
+cb.squared.test.error <- (test.outcomes - cb.preds)^2
+# cubic regression fit
+qd.fit.mse <- mean(qd.squared.test.error)
+cb.fit.mse <- mean(cb.squared.test.error)
+
+# best model based on min MSE
+c("lm.fit.mse", "qd.fit.mse", "cb.fit.mse")[which.min(c(lm.fit.mse, qd.fit.mse, cb.fit.mse))]
+```
+
