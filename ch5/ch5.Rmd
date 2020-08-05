@@ -100,5 +100,68 @@ poly.loocv.cv.err
 We see a significant improvement in MSE going from a linear to a quadratic fit, but higher order polynomials don't bring in further improvement, so the best option is quadratic. 
 
 ##### 5.3.3 k-Fold Cross-Validation
+Since LOOCV is just k-fold CV with k = n, we can use the cv.glm() function to implement k-fold CV. Below we use k = 10, a common choice for k, on the Auto data set. 
+
+
+```{r poly_k10, echo=F}
+set.seed(17)
+poly.k10.cv.err <- rep(0,10) # placeholders for each error calculations
+for(i in 1:10) {
+  poly.k10.fit.glm <- glm(mpg ~ poly(horsepower, i), data = Auto)
+  poly.k10.cv.err[i] <- cv.glm(Auto, poly.k10.fit.glm, K=10)$delta[1]
+}
+poly.k10.cv.err
+```
+We saw in Section 5.3.2 that the two numbers associated with delta are essentially the same when LOOCV is performed. When we instead perform k-fold CV, then the two numbers associated with delta differ slightly. The first is the standard k-fold CV estimate, as in (5.3). The second is a bias-corrected version. On this data set, the two estimates are very similar to each other.
+
+##### 5.3.4 The Bootstrap
+One of the great advantages of the bootstrap approach is that it can be applied in almost all situations. No complicated mathematical calculations are required. Performing a bootstrap analysis in R entails only two steps. First, we must create a function that computes the statistic of interest. Second, we use the boot() function, which is part of the boot library, to perform the bootstrap by repeatedly sampling observations from the data set with replacement.
+
+The Portfolio data set in the ISLR package is described in Section 5.2. To illustrate the use of the bootstrap on this data, we must first create a function, alpha.fn(), which takes as input the (X,Y) data as well as a vector indicating which observations should be used to estimate α. The function then outputs the estimate for α based on the selected observations.
+
+Recall that 'alpha' in this case refers to the proportion of our cash that we'll invest in stock X (and the remainder, 1-alpha, in stock Y) that minimizes investment risk (variance) of both investments. See formula 5.7 on page 187 of the textbook for the actual formula for minimizing this variance. 
+
+```{r bootstrap_func_setup, echo=F}
+set.seed(1)
+data(Portfolio)
+
+alpha.fn <- function(data, index){
+  X=data$X[index]
+  Y=data$Y[index]
+  return((var(Y)-cov(X,Y))/(var(X)+var(Y)-2*cov(X,Y)))
+}
+
+alpha.fn(Portfolio, 1:100)
+```
+```{r bootstrap_sample_once, echo=F}
+
+alpha.fn(Portfolio, sample(100,100, replace=T))
+
+```
+We can implement a bootstrap analysis by performing this command many times, recording all of the corresponding estimates for α, and computing the resulting standard deviation. 
+
+Thankfully, the boot() function automates boot() this approach. Below we produce R = 1, 000 bootstrap estimates for α.
+
+```{r boot, echo=F}
+
+boot(data = Portfolio, alpha.fn, R=1000)
+
+```
+The bootstrap approach can be used to assess the variability of the coefficient estimates and predictions from a statistical learning method. Here we use the bootstrap approach in order to assess the variability of the estimates for β0 and β1, the intercept and slope terms for the linear regres- sion model that uses horsepower to predict mpg in the Auto data set.
+
+```{r bootfunc_lm, echo=F}
+# step 1 - define the function that generates the stats you want, in this case the intercept b0 and slope b1 of a linear regression fit of mpg ~ horsepower from the Auto data set:
+
+boot.fn <- function(data, index) {
+  return(coef(lm(mpg ~ horsepower, data = data, subset = index)))
+}
+boot.fn(Auto, 1:392)
+
+# step 2 - generate an estimate by applying the function with a defined sample of the data set
+boot.fn(Auto, sample(392, 392, replace=T))
+
+# step 3 - use the boot() function to repeat the process R times and calculate the SE of your stats. 
+boot(Auto, boot.fn, 1000)
+```
 
 
