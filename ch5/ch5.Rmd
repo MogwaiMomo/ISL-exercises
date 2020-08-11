@@ -163,5 +163,18 @@ boot.fn(Auto, sample(392, 392, replace=T))
 # step 3 - use the boot() function to repeat the process R times and calculate the SE of your stats. 
 boot(Auto, boot.fn, 1000)
 ```
+```{r bootfunc_lm2, echo=F}
+# step 1 - define the function that generates the stats you want, in this case the intercept b0 and slope b1 of a linear regression fit of mpg ~ horsepower from the Auto data set:
 
+boot.fn2 <- function(data, index) {
+  return(coef(lm(mpg ~ horsepower + I(horsepower^2), data = data, subset = index)))
+}
+boot.fn2(Auto, 1:392)
+
+# step 2 - generate an estimate by applying the function with a defined sample of the data set
+boot.fn2(Auto, sample(392, 392, replace=T))
+
+# step 3 - use the boot() function to repeat the process R times and calculate the SE of your stats. 
+boot(Auto, boot.fn2, 1000)
+```
 
