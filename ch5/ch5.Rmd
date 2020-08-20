@@ -178,3 +178,44 @@ boot.fn2(Auto, sample(392, 392, replace=T))
 boot(Auto, boot.fn2, 1000)
 ```
 
+##### 5.3.4 Applied Problems
+
+5. In Chapter 4, we used logistic regression to predict the probability of default using income and balance on the Default data set. We will now estimate the test error of this logistic regression model using the validation set approach. Do not forget to set a random seed before beginning your analysis.
+
+(a) Fit a logistic regression model that uses income and balance to predict default.
+
+```{r 5a, echo=TRUE}
+data(Default)
+str(Default)
+
+# use sample() to create a training index that takes 50% of the sample
+sample.length <- nrow(Default)
+sample.size <- sample.length/2
+train.index <- sample(sample.length, sample.size)
+
+# fit a logistic regression model
+default.lm <- glm(default ~ balance + income, data = Default, subset = train.index, family="binomial")
+summary(default.lm)
+
+# make predictions
+default.lm.probs <- predict(default.lm, 
+                            newdata = Default[-train.index,],
+                            type = "response")
+default.lm.preds <- rep("No", nrow(Default[-train.index,]))
+default.lm.preds[default.lm.probs > 0.1] = "Yes"
+
+# isolate test outcomes
+default.lm.test.outcomes <- Default[-train.index,]$default
+
+# check test error via confusion matrix
+c.matrix <- table(default.lm.preds, default.lm.test.outcomes)
+test.error <- mean(default.lm.preds != default.lm.test.outcomes)
+
+# false positives
+type1 <- c.matrix[2,1]/(c.matrix[1,1]+c.matrix[2,1])
+
+# false negatives
+type2 <- c.matrix[1,2]/(c.matrix[2,2]+c.matrix[1,2])
+```
+Hmmm, this model is TOO stringent, it's causing too many false negatives.  
+
